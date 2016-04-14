@@ -1,0 +1,6 @@
+---
+final_name: rdpg
+blobstore:
+  provider: s3
+  options:
+    bucket_name: rdpg-bosh

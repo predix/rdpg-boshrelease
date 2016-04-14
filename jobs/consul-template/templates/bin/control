@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+if [[ -z ${1:-} ]] ; then fail "$0 start|stop" ; fi ; action=$1 ; shift 
+
+source "$(dirname $(dirname ${0}))/shell/env"
+
+case ${action} in 
+  (start)
+    echo $$ > ${pidFile}
+    if ! [[ -s ${configPath}/consul.json ]]
+    then cp ${jobPath}/config/consul.json ${configPath}/consul.json
+    fi
+    user exec ${pkgPath}/bin/consul-template -config ${configPath} 
+    ;;
+  (stop)
+    send_signal SIGTERM 
+    ;;
+  (*)
+    fail "Unknown action ${action}"
+    ;;
+esac

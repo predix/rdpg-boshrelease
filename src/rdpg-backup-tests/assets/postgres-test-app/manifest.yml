@@ -1,0 +1,6 @@
+---
+applications:
+- name: postgres-test-app
+  memory: 256M
+  instances: 1
+  path: .

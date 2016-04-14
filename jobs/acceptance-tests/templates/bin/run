@@ -1,0 +1,71 @@
+#!/bin/bash -l
+
+set -e
+
+echo <<TODO
+Wait for bootstrapping to be completed for all clusters, perhaps have an admin
+api endpoint for /state that summarizes the state of the entire system as of that moment.
+
+Get # of available instances on management database
+> Ensure that # available on each cluster is >= N (20?)
+> Ensure that mc available >= 2* pool_size
+
+When mc available # is >= 2 * pool_size begin:
+  Provision Instance
+  > verify instances tables in both mc and sc for each node
+  Bind Instance
+  > validate binding & credentials is propigated MC & SC
+  > FUTURE FEATURE: Bind creates new user on each instance for the database.
+  Use Instance: Create table, connect direct to both cluster nodes and verify data is in both places.
+  > verify connect, create schema & table, insert data, verify is replicated to each node
+  Unbind Instance
+  > validate that binding & credentials are set ineffective_at
+  > FUTURE FEATURE: Unbind deletes user on each instance for the database.
+  Deprovision Instance
+  > Validate that ineffective_at is set on MC & SC.
+  > Validate that can no longer connect using binding credentials via :5432 (through pgbouncer)
+
+Provision #clusters * 2 instances, get # available, sleep 10 seconds :
+  > Validate that # available is increasing, eg. more created on assignment.
+
+TODO
+
+
+GOPATH="/var/vcap/packages/acceptance-tests"
+GOROOT="/var/vcap/packages/golang-1.5"
+PATH="$GOPATH/bin:$GOROOT/bin:/var/vcap/packages/cli/bin:$PATH"
+
+RDPGD_ADMIN_USER="<%= p('rdpgd_service.admin_user') %>"
+RDPGD_ADMIN_PASS="<%= p('rdpgd_service.admin_pass') %>"
+RDPGD_ADMIN_PORT="<%= p('rdpgd_service.admin_port') %>"
+
+export GOPATH GOROOT PATH  RDPGD_ADMIN_PORT RDPGD_ADMIN_USER RDPGD_ADMIN_PASS 
+
+
+# export CF_COLOR=false
+export CONFIG="/var/vcap/jobs/acceptance-tests/config/acceptance-tests-config.json"
+
+## sleep 180
+
+cd /var/vcap/packages/acceptance-tests/src/github.com/starkandwayne/rdpg-acceptance-tests
+
+echo '################################################################################################################'
+echo $(go version)
+echo CONFIG=$CONFIG
+cat $CONFIG
+env | sort
+echo '################################################################################################################'
+
+echo "Running acceptance tests..."
+
+bin/test-acceptance || EXITSTATUS=$?
+
+echo "Acceptance Tests Complete; exit status: $EXITSTATUS"
+
+for i in /var/vcap/sys/log/acceptance_tests/*; do
+  if [[ -e "$i" ]]
+  then mv $i $i.log # needed to make download-logs work
+  fi
+done
+
+exit $EXITSTATUS

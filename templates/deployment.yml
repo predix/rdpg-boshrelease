@@ -1,0 +1,99 @@
+name: (( grab meta.environment ))
+
+properties:
+  rdpgd_manager:
+    # In hours
+    local_retention_time: 48.0
+    remote_retention_time: 336.0
+  rdpgd_service:
+    #In hours
+    local_retention_time: 48.0
+    remote_retention_time: 336.0
+  general:
+    #Please set this value to 'bosh_lite' before submitting to the pipeline.
+    environment_name: bosh_lite
+
+  postgresql:
+    debug: "true"
+    hba_config: (( grab meta.hba_config ))
+    max_connections: "250"
+    shared_buffers: "128MB"
+    effective_cache_size: "256MB"
+    work_mem: "2MB"
+    maintenance_work_mem: "16MB"
+    checkpoint_segments: "16"
+    checkpoint_completion_target: "0.7"
+    wal_buffers: "1MB"
+    default_statistics_target: "100"
+
+  pgbdr:
+    debug: "true"
+    hba_config: (( grab meta.hba_config ))
+    max_connections: "250"
+    shared_buffers: "128MB"
+    effective_cache_size: "256MB"
+    work_mem: "2MB"
+    maintenance_work_mem: "16MB"
+    checkpoint_segments: "16"
+    checkpoint_completion_target: "0.7"
+    wal_buffers: "1MB"
+    default_statistics_target: "100"
+
+  consul:
+    debug: "false"
+    server: false
+    join_node: (( grab jobs.rdpgmc.networks.rdpg.static_ips.[0] ))
+
+  rdpgd_service:
+    debug: "false"
+    log_level: "info"
+    cluster_name: ""
+    pool_size: 10
+    db_pass: "CHANGEME@1ce12345!!!"
+    max_instances_allowed: 12
+    max_instances_limit: 15
+
+  pgbouncer:
+    debug: "true"
+    admin_user: "rdpgpbadmin"
+    admin_pass: "admin"
+  haproxy:
+    admin_user: admin
+    admin_pass: admin
+    admin_port: 9999
+
+  top-level-haproxy:
+    admin_user: admin
+    admin_pass: admin
+    admin_port: 9998
+    mc_nodes: (( grab jobs.rdpgmc.networks.rdpg.static_ips ))
+    global_pgbouncer_nodes: (( grab jobs.global-pgbouncer.networks.rdpg.static_ips ))
+
+  global-pgbouncer:
+    debug: "true"
+    admin_user: "rdpgpbadmin"
+    admin_pass: "admin"
+
+  rdpgd-global-pgbouncer:
+    frequency: "15"
+
+compilation:
+  workers: 2
+  network: rdpg
+  reuse_compilation_vms: true
+
+update:
+  canaries: 0
+  max_in_flight: 1
+  canary_watch_time: 3000-350000
+  update_watch_time: 3000-350000
+  serial: false
+
+resource_pools:
+  - name: rdpg
+    network: rdpg
+    stemcell: (( grab meta.stemcell ))
+
+  - name: errand_a
+    network: rdpg
+    stemcell: (( grab meta.stemcell ))

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+PACKAGE=/var/vcap/packages/rdpg-backup-tests
+cd ${PACKAGE}
+export GOPATH="${PWD}"
+export GOROOT="/var/vcap/packages/golang-1.5"
+export PATH="/var/vcap/packages/cf-cli/bin:${GOPATH}/bin:${GOROOT}/bin:${PATH}"
+export GO15VENDOREXPERIMENT=1
+
+CONFIG_PATH="/var/vcap/jobs/backup-tests/config/backup-tests.json" ${PACKAGE}/src/github.com/starkandwayne/rdpg-backup-tests/bin/test

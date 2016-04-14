@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+
+package="pgbouncer"
+version="1.5.5"
+file="${package}-${version}.tar.gz"
+url="https://pgbouncer.github.io/downloads/${file}"
+
+if [[ ! -s "${package}/${file}" ]]
+then
+  mkdir -p ${package}
+  curl -s "${url}" -o "${package}/${file}"
+fi
+#!/bin/sh
+
+pgbouncer_initialize()
+{
+  typeset postgresql_version
+
+  # TODO: detect the version installed in SM...?
+  postgresql_version="$(psql -V | head -1 | awk '{print $NF}')"
+  package_version=$(pgbouncer_versions_latest)
+  package_url=$(pgbouncer_version_url "${package_version}")
+  package_file="${package_url##*/}"
+  package_dir="${package_file%.tar.*}"
+}
+
+pgbouncer_versions()
+{
+  typeset -ga versions
+  versions=($(
+    curl -s "http://pgfoundry.org/frs/?group_id=1000258" |
+      grep '/frs/download.php' |
+      sed -e 's/.*download.php\///' -e 's/">.*$//' |
+      sort -r
+  ))
+}
+
+pgbouncer_latest()
+{
+  pgbouncer_versions
+  typeset -g latest
+  latest=${versions[1]}
+}
+
+pgbouncer_versions_latest(){
+  pgbouncer_latest
+
+  latest="${latest%.tgz}"
+  latest="${latest%.tar.gz}"
+  latest="${latest#*-}"
+  log "${latest}"
+}
+
+pgbouncer_versions_available() {
+  pgbouncer_versions
+
+  for version in ${versions[@]}
+  do
+    version="${version%.tgz}"
+    version="${version%.tar.gz}"
+    version="${version#*-}"
+    log "${version}"
+  done
+}
+
+pgbouncer_version_url()
+{
+  typeset _version _path _current
+
+  _version="$1" && shift || fail "A version number must be given."
+
+  pgbouncer_versions
+
+  for _path in ${versions[@]}
+  do
+    _current="${_path%.tgz}"
+    _current="${version#*-}"
+
+    if [[ "${version}" == "${_current}" ]]
+    then
+      # http://pgfoundry.org/frs/download.php/3393/pgbouncer-1.5.4.tar.gz
+      log "http://pgfoundry.org/frs/download.php/${_path}"
+      break
+    fi
+  done
+}
+

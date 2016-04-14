@@ -1,0 +1,19 @@
+---
+name: consul-template
+packages:
+- consul-template
+templates:
+  bin/control: bin/control
+  shell/env.erb: shell/env
+  shell/functions: shell/functions
+  config/consul.json: config/consul.json
+properties:
+  consul_template.debug:
+    description: "Enable debug output, can be 'true' or 'false' (default)."
+    default: "false"
+  consul_template.user_name:
+    description: "Consul Template User Name"
+    default: "admin"
+  consul_template.password:
+    description: "Consul Template Password"
+    default: "admin"

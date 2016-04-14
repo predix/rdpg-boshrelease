@@ -1,0 +1,8 @@
+---
+name: haproxy
+dependencies:
+- pcre
+- zlib
+- socat
+files:
+  - haproxy/haproxy-*.tar.gz

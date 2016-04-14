@@ -1,0 +1,5 @@
+---
+name: gdal
+dependencies: []
+files:
+  - gdal/gdal-*.tar.gz

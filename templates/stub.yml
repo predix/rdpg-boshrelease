@@ -1,0 +1,16 @@
+---
+meta:
+  environment: NAME
+# security_groups:
+#   - bosh
+#   - rdpg
+# subnet_ids:
+#   rdpg: SUBNET_ID_GOES_HERE
+  stemcell:
+    name: STEMCELL
+
+director_uuid: DIRECTOR-UUID
+
+releases:
+  - name: rdpg
+    version: latest

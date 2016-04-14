@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+package="gdal"
+version="2.0.2"
+file="${package}-${version}.tar.gz"
+url="http://download.osgeo.org/gdal/${version}/${file}"
+
+##​http://download.osgeo.org/gdal/2.0.2/gdal-2.0.2.tar.gz
+
+if [[ ! -s "${package}/${file}" ]]
+then
+  mkdir -p ${package}
+  curl -s "${url}" -o "${package}/${file}"
+fi

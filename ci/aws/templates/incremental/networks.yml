@@ -1,0 +1,19 @@
+networks:
+- name: rdpg
+  type: manual
+  subnets:
+  - name: rdpg
+    dns:
+    - 10.128.99.10
+    - 8.8.8.8
+    gateway: 10.10.1.1
+    range: 10.10.1.0/24
+    reserved:
+    - 10.10.1.2 - 10.10.1.9
+    - 10.10.1.30 - 10.10.1.254
+    static: [10.10.1.10 - 10.10.1.14]
+    cloud_properties:
+      name: rdpg
+      subnet: subnet-659cbd4e
+      security_groups:
+      - bastion

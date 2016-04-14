@@ -1,0 +1,5 @@
+---
+name: consul
+dependencies: []
+files:
+  - consul/consul-*.zip

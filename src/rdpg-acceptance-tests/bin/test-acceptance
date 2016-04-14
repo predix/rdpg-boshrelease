@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -eu
+
+MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+
+export GOPATH=${ROOT_DIR}/Godeps/_workspace:${GOPATH}
+export PATH=${ROOT_DIR}/Godeps/_workspace/bin:${PATH}
+
+go install -v github.com/onsi/ginkgo/ginkgo
+
+source $MY_DIR/test-options.sh
+ginkgo $GINKGO_OPTS -skipPackage="failover,dashboard" "$@"

@@ -1,0 +1,71 @@
+<%
+  require 'json'
+
+  my_ip = spec.networks.send(spec.networks.methods(false).first).ip
+  my_host = spec.networks.send(spec.networks.methods(false).first).dns_record_name
+  join_nodes = p('consul.join_nodes', nil)
+  join_node = p('consul.join_node', nil)
+  cluster_size = join_nodes != nil ? join_nodes.size : nil
+  is_inital_leader = join_node && (join_node == my_host || join_node == my_ip)
+  client_addr = p('consul.client_addr', '0.0.0.0')
+  consuldc = p('general.environment_name', nil)
+
+  config = {
+    datacenter: consuldc,
+    data_dir: '/var/vcap/store/consul',
+    ui_dir: '/var/vcap/packages/consul-ui',
+    node_name: "#{spec.deployment}-#{name}-#{index}",
+    bind_addr: '0.0.0.0',
+    client_addr: client_addr,
+    advertise_addr: my_ip,
+    domain: 'consul',
+    leave_on_terminate: false,
+    log_level: 'INFO',
+    domain: p('consul.domain', 'consul'),
+    server: p('consul.server', true),
+    rejoin_after_leave: true,
+    ports: {
+      dns: 53
+    }
+  }
+
+	(p('consul.server') == true ) ?  config["server"] = true : config["server"] = false
+	if (p('consul.server') == true && index == 0)
+		config["bootstrap_expect"] = 3
+		config["start_join"] = [p('consul.join_node')] if index > 0
+	else
+		config["start_join"] = [p('consul.join_node')]
+	end
+
+	ssl_ca = p("consul.ssl_ca", nil)
+  ssl_cert = p("consul.ssl_crt", nil)
+  ssl_key = p("consul.ssl_key", nil)
+  if ssl_ca and ssl_cert and ssl_key
+    config[:verify_incoming] = true
+    config[:verify_outgoing] = true
+    config[:ca_file] = '/var/vcap/jobs/consul/config/ca.crt'
+    config[:cert_file] = '/var/vcap/jobs/consul/config/consul.crt'
+    config[:key_file] = '/var/vcap/jobs/consul/config/consul.key'
+  end
+
+  if p('consul.encrypt', nil)
+    config[:encrypt] = p('consul.encrypt')
+  end
+
+  if (networks = spec.networks.methods(false)) && dns = spec.networks.send(networks.first).dns
+    config[:recursor] = dns.first
+  else
+    config[:recursor] = '8.8.8.8'
+  end
+
+  if join_nodes
+    config[:start_join] = join_nodes
+    config[:retry_join] = join_nodes
+    config[:bootstrap_expect] = cluster_size
+  elsif join_node and cluster_size
+    config[:start_join] = [join_node] unless is_inital_leader
+    config[:retry_join] = [join_node] unless is_inital_leader
+    config[:bootstrap_expect] = cluster_size
+  end
+%>
+<%= JSON.pretty_generate(config) %>

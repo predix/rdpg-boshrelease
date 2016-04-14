@@ -1,0 +1,6 @@
+---
+name: rdpgd
+dependencies:
+- golang-1.5
+files:
+- rdpgd/**/*.go

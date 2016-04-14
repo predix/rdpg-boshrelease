@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -e
+
+package="consul"
+version="0.5.2"
+file="${package}-${version}.zip"
+
+mkdir -p ${BOSH_INSTALL_TARGET}/bin
+unzip ${package}/${file} -d ${BOSH_INSTALL_TARGET}/bin

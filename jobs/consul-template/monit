@@ -1,0 +1,5 @@
+check process consul-template
+  with pidfile /var/vcap/sys/run/consul-template/consul-template.pid
+  start program "/var/vcap/jobs/consul-template/bin/control start" with timeout 60 seconds
+  stop program "/var/vcap/jobs/consul-template/bin/control stop"
+  group vcap

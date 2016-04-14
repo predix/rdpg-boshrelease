@@ -1,0 +1,91 @@
+---
+meta:
+  stemcell:
+    name: bosh-aws-xen-centos-7-go_agent
+    version: latest
+
+disk_pools:
+- name: rdpgsc_disk
+  disk_size: 64_000
+  cloud_properties: {}
+
+jobs:
+  - name: rdpgmc
+    resource_pool: rdpg
+    properties:
+      rdpgd_manager:
+        debug: "false"
+        log_level: "info"
+        db_pass: "CHANGEME@1ce12345!!!"
+        cluster_service: "pgbdr"
+
+  - name: sc-pgbdr-m0-r0
+    resource_pool: rdpg
+    persistent_disk_pool: rdpgsc_disk
+    properties:
+      rdpgd_service:
+        cluster_name: ""
+        matrix_name: sc-pgbdr-m0-r0
+        cluster_service: "pgbdr"
+
+
+  - name: sc-pgbdr-m0-r1
+    resource_pool: rdpg
+    persistent_disk_pool: rdpgsc_disk
+    properties:
+      rdpgd_service:
+        cluster_name: ""
+        matrix_name: sc-pgbdr-m0-r1
+        cluster_service: "pgbdr"
+
+  - name: sc-pgbdr-m1-r0
+    resource_pool: rdpg
+    persistent_disk_pool: rdpgsc_disk
+    properties:
+      rdpgd_service:
+        cluster_name: ""
+        matrix_name: sc-pgbdr-m1-r0
+        cluster_service: "postgresql"
+
+  - name: acceptance_tests
+    networks:
+      - name: rdpg
+        default: [dns, gateway]
+
+  - name: backup_tests
+    networks:
+      - name: rdpg
+        default: [dns, gateway]
+    properties:
+      cf:
+        api_url: YOUR_CF_API_HERE
+        apps_domain: YOUR_APPS_DOMAIN
+
+  - name: broker_registrar
+    networks:
+      - name: rdpg
+        default: [dns, gateway]
+    properties:
+      cf:
+        api_url: YOUR_CF_API_HERE
+
+  - name: broker_deregistrar
+    networks:
+      - name: rdpg
+        default: [dns, gateway]
+    properties:
+      cf:
+        api_url: YOUR_CF_API_HERE
+
+compilation:
+  cloud_properties:
+    instance_type: m3.medium
+
+resource_pools:
+  - name: rdpg
+    cloud_properties:
+      instance_type: m3.medium
+
+  - name: errand_a
+    cloud_properties:
+      instance_type: m3.medium

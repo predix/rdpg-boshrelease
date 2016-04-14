@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+package="haproxy"
+version="1.5.12"
+file="${package}-${version}.tar.gz"
+url="http://www.haproxy.org/download/1.5/src/${file}"
+
+if [[ ! -s "${package}/${file}" ]]
+then
+  mkdir -p ${package}
+  curl -s "${url}" -o "${package}/${file}"
+fi

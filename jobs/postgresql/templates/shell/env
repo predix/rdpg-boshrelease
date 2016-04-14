@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+set -e # exit immediately if a simple command exits with a non-zero status
+set -u # report the usage of uninitialized variables
+
+vmName="<%= name %>" # BOSH VM name
+vmIndex="<%= index %>" # Index within cluster
+deploymentName="<%= spec.deployment %>"
+domainName="<%= spec.dns_domain_name %>"
+vmFullName="${vmName}/${vmIndex}" # full job name
+nodeName="${deploymentName}-${vmName}-${vmIndex}"
+
+jobName="postgresql"
+
+logPath="/var/vcap/sys/log/${jobName}"
+mkdir -p "${logPath}"
+exec &>> "${logPath}/${jobName}.log" # STD{OUT,ERR}
+echo -e "$(date +'%Y-%m-%dT%H:%M:%S') $(whoami) > $0 $*"
+
+source "/var/vcap/jobs/${jobName}/shell/functions"
+
+<% if p('postgresql.debug') == "true" %>turn_debugging_on<% end %>
+
+jobPath="/var/vcap/jobs/${jobName}"
+pkgPath="/var/vcap/packages/${jobName}-9.4"
+runPath="/var/vcap/sys/run/${jobName}"
+tmpPath="/var/vcap/sys/tmp/${jobName}"
+storePath="/var/vcap/store/${jobName}"
+restorePath="/var/vcap/store/${jobName}/restore"
+databasePath="${storePath}/data"
+pidFile="${databasePath}/postmaster.pid"
+
+userName="vcap"
+groupName="vcap"
+LANG="en_US.UTF-8"
+HOME="${HOME:-"/home/${userName}"}"
+LD_LIBRARY_PATH="${pkgPath}/lib:/var/vcap/packages/geos/lib:/var/vcap/packages/proj/lib:/var/vcap/packages/gdal/lib:/usr/local/lib"
+export LANG HOME LD_LIBRARY_PATH
+
+add_packages_to_path
+
+configure_job_paths
+
+set_pid
+
+maxConn="<%= if p('rdpgd_service.max_instances_limit',nil).to_i > 0
+  p('rdpgd_service.max_instances_limit',nil).to_i * 2 + 50
+else
+  p('postgresql.max_connections',nil).to_i
+end %>"
+
+avMaxWorkers="<%= p('postgresql.autovacuum_max_workers') %>"

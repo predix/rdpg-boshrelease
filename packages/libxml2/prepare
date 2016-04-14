@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+package="libxml2"
+version="2.7.2"
+file="${package}-${version}.tar.gz"
+url="ftp://xmlsoft.org/libxml2/${file}"
+
+##ftp://xmlsoft.org/libxml2/libxml2-2.7.2.tar.gz
+
+if [[ ! -s "${package}/${file}" ]]
+then
+  mkdir -p ${package}
+  curl -s "${url}" -o "${package}/${file}"
+fi

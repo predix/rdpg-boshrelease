@@ -1,0 +1,4 @@
+"rdpgpbadmin" "md5b16b9f66b76edd591f484987665dc16c"
+
+<% require "digest/md5" %>
+"<%= p('global-pgbouncer.admin_user') %>" "md5<%= Digest::MD5.hexdigest(p('global-pgbouncer.admin_pass')+p('global-pgbouncer.admin_user')) %>"

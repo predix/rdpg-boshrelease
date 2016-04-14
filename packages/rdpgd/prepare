@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -e -x
+
+mkdir -p ../src
+
+#if ! [[ -d ../src/rdpgd/.git ]]
+#then
+#  cd ../src
+#  rm -rf ./rdpgd
+#  git clone git@github.com:starkandwayne/rdpgd.git
+#fi

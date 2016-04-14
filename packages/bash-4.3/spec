@@ -1,0 +1,6 @@
+---
+name: bash-4.3
+dependencies: {}
+files:
+  - bash/bash-4.3.tar.gz
+  - bash/bash-4.3-patches.tar.gz

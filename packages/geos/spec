@@ -1,0 +1,5 @@
+---
+name: geos
+dependencies: []
+files:
+  - geos/geos-*.tar.bz2

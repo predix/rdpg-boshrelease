@@ -1,0 +1,721 @@
+groups:
+- name: build
+  jobs:
+  - run-unit-tests
+  - deploy-incremental-commits
+  - deploy-commit-on-latest-release
+  - deploy-new-from-lastest-commit
+  - release-lock
+  - acquire-lock
+  - rc
+  - shipit
+  - patch_bump
+
+- name: version
+  jobs:
+  - patch
+  - minor
+  - major
+
+jobs:
+- name: run-unit-tests
+  public: true
+  serial: true
+  plan:
+  - do:
+    - aggregate:
+      - get: git-rdpg-boshrelease-develop
+        trigger: true
+      - get: git-rdpg-boshrelease-release-changes
+        trigger: true
+    - task: run-unit-tests
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+          - {name: git-rdpg-boshrelease-develop, path: .}
+        run:
+          path: ./ci/scripts/unit_tests.sh
+          args: []
+- name: deploy-incremental-commits
+  public: true
+  serial: true
+  plan:
+  - put: bosh-aws-lock
+    params:
+      acquire: true
+  - ensure:
+      put: bosh-aws-lock
+      params:
+        release: bosh-aws-lock
+    do:
+    - aggregate:
+      - get: rdpg-boshrelease
+        resource: git-rdpg-boshrelease-develop
+        passed: [run-unit-tests]
+        trigger: true
+    - task: create-release-and-deploy-aws
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+        - name: rdpg-boshrelease
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/create_release_and_deploy_aws.sh
+          args: []
+        params:
+          bosh_target: {{bosh-aws-build-target}}
+          bosh_username: {{bosh-aws-build-username}}
+          bosh_password: {{bosh-aws-build-password}}
+          bosh_deployment_name: rdpg-deploy-incremental-commits
+          bosh_uuid: {{bosh-aws-build-uuid}}
+          environment: incremental
+          backups_s3_access_key: {{backups-s3-access-key}}
+          backups_s3_secret_key: {{backups-s3-secret-key}}
+          backups_s3_bucket_name: {{backups-s3-bucket-name}}
+      attempts: 3
+    - task: bosh-run-errand-acceptance-tests
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+          - {name: create-release-and-deploy-aws, path: .}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/errands.sh
+          args: []
+        params:
+          bosh_target: {{bosh-aws-build-target}}
+          bosh_username: {{bosh-aws-build-username}}
+          bosh_password: {{bosh-aws-build-password}}
+          sleep_time: 300
+          errand_name: acceptance_tests
+      attempts: 3
+
+    - task: bosh-run-errand-broker-registrar
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+          - {name: create-release-and-deploy-aws, path: .}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/registrar.sh
+          args: []
+        params:
+          cf_api_url: {{cf-api-url}}
+          cf_admin_username: {{cf-admin-username}}
+          cf_admin_password: {{cf-admin-password}}
+          broker_name: {{broker-name}}
+          broker_url: {{broker-url-incremental}}
+          broker_username: {{broker-username}}
+          broker_password: {{broker-password}}
+      attempts: 3
+
+    - task: bosh-run-errand-smoke-tests
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+          - {name: create-release-and-deploy-aws, path: .}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/errands.sh
+          args: []
+        params:
+          bosh_target: {{bosh-aws-build-target}}
+          bosh_username: {{bosh-aws-build-username}}
+          bosh_password: {{bosh-aws-build-password}}
+          errand_name: smoke_tests
+      attempts: 2
+
+    - task: bosh-run-errand-broker-deregistrar
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+          - {name: create-release-and-deploy-aws, path: .}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/deregistrar.sh
+          args: []
+        params:
+          cf_api_url: {{cf-api-url}}
+          cf_admin_username: {{cf-admin-username}}
+          cf_admin_password: {{cf-admin-password}}
+          broker_name: {{broker-name}}
+      attempts: 3
+
+- name: deploy-commit-on-latest-release
+  public: true
+  serial: true
+  plan:
+  - put: bosh-aws-lock
+    params:
+      acquire: true
+  - ensure:
+      do:
+      - task: bosh-delete-deploy
+        config:
+          platform: linux
+          image: {{docker-hub-task-image}}
+          inputs:
+            - {name: git-rdpg-boshrelease-develop, path: rdpg-boshrelease}
+          run:
+            path: ./rdpg-boshrelease/ci/scripts/delete_deploy.sh
+            args: []
+          params:
+            bosh_target: {{bosh-aws-build-target}}
+            bosh_username: {{bosh-aws-build-username}}
+            bosh_password: {{bosh-aws-build-password}}
+            bosh_deployment_name: rdpg-deploy-commit-on-latest-release
+      - put: bosh-aws-lock
+        params:
+          release: bosh-aws-lock
+
+    do:
+    - aggregate:
+      - get: git-rdpg-boshrelease-develop
+        passed: [deploy-incremental-commits]
+        trigger: true
+      - get: git-rdpg-boshrelease-master
+        trigger: true
+      - get: final-release
+        trigger: true
+
+    - task: create-previous-manifest
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+        - name: git-rdpg-boshrelease-master
+          path: rdpg-boshrelease
+        - name: final-release
+          path: rdpg-boshrelease/ci/aws/releases
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/create_current_manifest.sh
+          args: []
+        params:
+          bosh_deployment_name: rdpg-deploy-commit-on-latest-release
+          bosh_uuid: {{bosh-aws-build-uuid}}
+          environment: upgrade
+    - put: bosh-aws-upgrade
+      params:
+        manifest: create-previous-manifest/rdpg-boshrelease/manifests/aws.yml
+        releases: [final-release/*.tgz]
+        stemcells: []
+      attempts: 3
+    - task: bosh-run-errand-acceptance-tests
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+        - {name: create-previous-manifest, path: .}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/errands.sh
+          args: []
+        params:
+          bosh_target: {{bosh-aws-build-target}}
+          bosh_username: {{bosh-aws-build-username}}
+          bosh_password: {{bosh-aws-build-password}}
+          sleep_time: 300
+          errand_name: acceptance_tests
+      attempts: 3
+    - task: bosh-run-errand-broker-deregistrar
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+          - {name: create-previous-manifest, path: .}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/errands.sh
+          args: []
+        params:
+          bosh_target: {{bosh-aws-build-target}}
+          bosh_username: {{bosh-aws-build-username}}
+          bosh_password: {{bosh-aws-build-password}}
+          errand_name: broker_deregistrar
+
+    - task: bosh-run-errand-broker-registrar
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+          - {name: create-previous-manifest, path: .}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/errands.sh
+          args: []
+        params:
+          bosh_target: {{bosh-aws-build-target}}
+          bosh_username: {{bosh-aws-build-username}}
+          bosh_password: {{bosh-aws-build-password}}
+          errand_name: broker_registrar
+
+  #    - task: bosh-run-errand-broker-registrar
+  #      config:
+  #        platform: linux
+  #        image: {{docker-hub-task-image}}
+  #        inputs:
+  #          - {name: create-previous-manifest, path: .}
+  #        run:
+  #          path: ./rdpg-boshrelease/ci/scripts/registrar.sh
+  #          args: []
+  #        params:
+  #          cf_api_url: {{cf-api-url}}
+  #          cf_admin_username: {{cf-admin-username}}
+  #          cf_admin_password: {{cf-admin-password}}
+  #          broker_name: {{broker-name}}
+  #          broker_url: {{broker-url-upgrade}}
+  #          broker_username: {{broker-username}}
+  #          broker_password: {{broker-password}}
+      attempts: 3
+    - task: bosh-run-errand-smoke-tests
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+          - {name: create-previous-manifest, path: .}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/errands.sh
+          args: []
+        params:
+          bosh_target: {{bosh-aws-build-target}}
+          bosh_username: {{bosh-aws-build-username}}
+          bosh_password: {{bosh-aws-build-password}}
+          errand_name: smoke_tests
+      attempts: 2
+    - task: bosh-run-errand-broker-deregistrar
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+          - {name: create-previous-manifest, path: .}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/errands.sh
+          args: []
+        params:
+          bosh_target: {{bosh-aws-build-target}}
+          bosh_username: {{bosh-aws-build-username}}
+          bosh_password: {{bosh-aws-build-password}}
+          errand_name: broker_deregistrar
+  #    - task: bosh-run-errand-broker-deregistrar
+  #      config:
+  #        platform: linux
+  #        image: {{docker-hub-task-image}}
+  #        inputs:
+  #          - {name: create-previous-manifest, path: .}
+  #        run:
+  #          path: ./rdpg-boshrelease/ci/scripts/deregistrar.sh
+  #          args: []
+  #        params:
+  #          cf_api_url: {{cf-api-url}}
+  #          cf_admin_username: {{cf-admin-username}}
+  #          cf_admin_password: {{cf-admin-password}}
+  #          broker_name: {{broker-name}}
+      attempts: 3
+    - task: create-release-and-deploy-aws
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+          - {name: git-rdpg-boshrelease-develop, path: rdpg-boshrelease}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/create_release_and_deploy_aws.sh
+          args: []
+        params:
+          bosh_target: {{bosh-aws-build-target}}
+          bosh_username: {{bosh-aws-build-username}}
+          bosh_password: {{bosh-aws-build-password}}
+          bosh_deployment_name: rdpg-deploy-commit-on-latest-release
+          bosh_uuid: {{bosh-aws-build-uuid}}
+          environment: upgrade
+      attempts: 3
+    - task: bosh-run-errand-acceptance-tests
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+          - {name: create-release-and-deploy-aws, path: .}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/errands.sh
+          args: []
+        params:
+          bosh_target: {{bosh-aws-build-target}}
+          bosh_username: {{bosh-aws-build-username}}
+          bosh_password: {{bosh-aws-build-password}}
+          sleep_time: 300
+          errand_name: acceptance_tests
+      attempts: 3
+    - task: bosh-run-errand-broker-registrar
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+          - {name: create-release-and-deploy-aws, path: .}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/registrar.sh
+          args: []
+        params:
+          cf_api_url: {{cf-api-url}}
+          cf_admin_username: {{cf-admin-username}}
+          cf_admin_password: {{cf-admin-password}}
+          broker_name: {{broker-name}}
+          broker_url: {{broker-url-upgrade}}
+          broker_username: {{broker-username}}
+          broker_password: {{broker-password}}
+      attempts: 3
+    - task: bosh-run-errand-smoke-tests
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+          - {name: create-release-and-deploy-aws, path: .}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/errands.sh
+          args: []
+        params:
+          bosh_target: {{bosh-aws-build-target}}
+          bosh_username: {{bosh-aws-build-username}}
+          bosh_password: {{bosh-aws-build-password}}
+          errand_name: smoke_tests
+      attempts: 2
+    - task: bosh-run-errand-broker-deregistrar
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+          - {name: create-release-and-deploy-aws, path: .}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/deregistrar.sh
+          args: []
+        params:
+          cf_api_url: {{cf-api-url}}
+          cf_admin_username: {{cf-admin-username}}
+          cf_admin_password: {{cf-admin-password}}
+          broker_name: {{broker-name}}
+      attempts: 3
+
+- name: deploy-new-from-lastest-commit
+  public: true
+  serial: true
+  plan:
+  - put: bosh-aws-lock
+    params:
+      acquire: true
+  - ensure:
+      do:
+      - task: bosh-delete-deploy
+        config:
+          platform: linux
+          image: {{docker-hub-task-image}}
+          inputs:
+            - {name: rdpg-boshrelease}
+          run:
+            path: ./rdpg-boshrelease/ci/scripts/delete_deploy.sh
+            args: []
+          params:
+            bosh_target: {{bosh-aws-build-target}}
+            bosh_username: {{bosh-aws-build-username}}
+            bosh_password: {{bosh-aws-build-password}}
+            bosh_deployment_name: rdpg-deploy-new-from-lastest-commit
+      - put: bosh-aws-lock
+        params:
+          release: bosh-aws-lock
+
+    do:
+    - aggregate:
+      - get: rdpg-boshrelease
+        resource: git-rdpg-boshrelease-develop
+        passed: [deploy-incremental-commits]
+        trigger: true
+
+    - task: create-release-and-deploy-aws
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+        - name: rdpg-boshrelease
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/create_release_and_deploy_aws.sh
+          args: []
+        params:
+          bosh_target: {{bosh-aws-build-target}}
+          bosh_username: {{bosh-aws-build-username}}
+          bosh_password: {{bosh-aws-build-password}}
+          bosh_deployment_name: rdpg-deploy-new-from-lastest-commit
+          bosh_uuid: {{bosh-aws-build-uuid}}
+          environment: new
+      attempts: 3
+    - task: bosh-run-errand-acceptance-tests
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+          - {name: create-release-and-deploy-aws, path: .}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/errands.sh
+          args: []
+        params:
+          bosh_target: {{bosh-aws-build-target}}
+          bosh_username: {{bosh-aws-build-username}}
+          bosh_password: {{bosh-aws-build-password}}
+          sleep_time: 300
+          errand_name: acceptance_tests
+      attempts: 3
+    - task: bosh-run-errand-broker-registrar
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+          - {name: create-release-and-deploy-aws, path: .}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/registrar.sh
+          args: []
+        params:
+          cf_api_url: {{cf-api-url}}
+          cf_admin_username: {{cf-admin-username}}
+          cf_admin_password: {{cf-admin-password}}
+          broker_name: {{broker-name}}
+          broker_url: {{broker-url-new}}
+          broker_username: {{broker-username}}
+          broker_password: {{broker-password}}
+    - task: bosh-run-errand-smoke-tests
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+          - {name: create-release-and-deploy-aws, path: .}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/errands.sh
+          args: []
+        params:
+          bosh_target: {{bosh-aws-build-target}}
+          bosh_username: {{bosh-aws-build-username}}
+          bosh_password: {{bosh-aws-build-password}}
+          errand_name: smoke_tests
+      attempts: 3
+    - task: bosh-run-errand-broker-deregistrar
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+          - {name: create-release-and-deploy-aws, path: .}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/deregistrar.sh
+          args: []
+        params:
+          cf_api_url: {{cf-api-url}}
+          cf_admin_username: {{cf-admin-username}}
+          cf_admin_password: {{cf-admin-password}}
+          broker_name: {{broker-name}}
+      attempts: 2
+
+- name: rc
+  public: true
+  plan:
+  - aggregate:
+    - get: boshrelease
+      resource: git-rdpg-boshrelease-develop
+      passed: [deploy-commit-on-latest-release, deploy-new-from-lastest-commit]
+      trigger: false
+    - get: version
+      trigger: false
+      params: {pre: rc}
+  - put: version
+    params: {file: version/number}
+
+- name: patch
+  public: true
+  plan:
+  - aggregate:
+    - get: version
+      trigger: false
+      params: {bump: patch}
+  - put: version
+    params: {file: version/number}
+
+- name: minor
+  public: true
+  plan:
+  - aggregate:
+    - get: version
+      trigger: false
+      params: {bump: minor}
+  - put: version
+    params: {file: version/number}
+
+- name: major
+  public: true
+  plan:
+  - aggregate:
+    - get: version
+      trigger: false
+      params: {bump: major}
+  - put: version
+    params: {file: version/number}
+
+
+- name: patch_bump
+  public: true
+  plan:
+  - aggregate:
+    - get: version
+      passed: [shipit]
+      trigger: false
+      params: {bump: patch}
+  - put: version
+    params: {file: version/number}
+
+- name: shipit
+  public: true
+  serial: true
+  plan:
+  - do:
+    - aggregate:
+      - get: version
+        passed: [rc]
+        params: {bump: final}
+        trigger: false
+      - get: boshrelease
+        resource: git-rdpg-boshrelease-develop
+        passed: [rc]
+        params: {fetch: [master]}
+        trigger : false
+    - task: create-final-release
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+        - {name: boshrelease, path: rdpg-boshrelease}
+        - {name: version}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/shipit.sh
+          args: []
+        params:
+          release_name: "Reliable Distributed PostgreSQL"
+          bosh_target: {{bosh-lite-build-target}}
+          bosh_username: {{bosh-lite-build-username}}
+          bosh_password: {{bosh-lite-build-password}}
+          bosh_deployment_name: {{bosh-lite-build-deployment-name}}
+          aws_access_key_id: {{boshrelease-aws-access-key-id}}
+          aws_secret_access_key: {{boshrelease-aws-secret-access-key}}
+          promotion_branch: develop
+          ci_git_email: {{ci-git-email}}
+
+    - aggregate:
+      - put: version
+        params: {file: version/number}
+      - put: git-rdpg-boshrelease-develop
+        params:
+          repository: create-final-release/rdpg-boshrelease
+          rebase: true
+      - put: git-rdpg-boshrelease-master
+        params:
+          repository: create-final-release/rdpg-boshrelease
+          rebase: true
+      - put: final-release
+        params: {from: create-final-release/rdpg-boshrelease/releases/rdpg/rdpg-(.*).tgz}
+      - put: github-final-release
+        params:
+          name: create-final-release/rdpg-boshrelease/release/name
+          tag: create-final-release/rdpg-boshrelease/release/tag
+          body: create-final-release/rdpg-boshrelease/release/notes.md
+          globs: [create-final-release/rdpg-boshrelease/releases/rdpg/rdpg-*.tgz]
+    on_failure:
+      put: slack-devs
+      params:
+        text: <!here> shipit job failed https://ci.starkandwayne.com/pipelines/rdpg-boshrelease
+        channel: "#rdpg"
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+    on_success:
+      put: slack-devs
+      params:
+        text_file: create-final-release/rdpg-boshrelease/release/slack_success_message.txt
+        channel: "#rdpg"
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+
+- name: release-lock
+  plan:
+  - get: bosh-aws-lock
+  - put: bosh-aws-lock
+    params:
+      release: bosh-aws-lock
+
+- name: acquire-lock
+  plan:
+  - get: bosh-aws-lock
+  - put: bosh-aws-lock
+    params:
+      acquire: true
+
+resources:
+- name: version
+  type: semver
+  source:
+    key: current-version
+    bucket: {{pipeline-aws-bucket}}
+    access_key_id: {{pipeline-aws-access-key-id}}
+    secret_access_key: {{pipeline-aws-secret-access-key}}
+    initial_version: 0.2.0
+
+- name: git-rdpg-boshrelease-develop
+  type: git
+  source:
+    uri: git@github.com:starkandwayne/rdpg-boshrelease.git
+    branch: develop
+    private_key: {{github-private-key}}
+
+- name: git-rdpg-boshrelease-master
+  type: git
+  source:
+    uri: git@github.com:starkandwayne/rdpg-boshrelease.git
+    branch: master
+    private_key: {{github-private-key}}
+
+- name: git-rdpg-boshrelease-release-changes
+  type: git
+  source:
+    uri: git@github.com:starkandwayne/rdpg-boshrelease.git
+    branch: develop
+    private_key: {{github-private-key}}
+    paths:
+      - src/**/*
+      - jobs/**/*
+      - packages/**/*
+      - config/blobs.yml
+      - templates/**/*
+
+- name: github-final-release
+  type: github-release
+  source:
+    user: starkandwayne
+    repository: rdpg-boshrelease
+    access_token: {{github-access-token}}
+
+- name: final-release
+  type: s3
+  source:
+    bucket: {{boshrelease-aws-bucket}}
+    regexp: rdpg-(.*).tgz
+    access_key_id: {{boshrelease-aws-access-key-id}}
+    secret_access_key: {{boshrelease-aws-secret-access-key}}
+
+- name: slack-devs
+  type: slack-notification
+  source:
+    url: {{slack-devs-webhook}}
+
+- name: bosh-aws-upgrade
+  type: bosh-deployment
+  source:
+    target: {{bosh-aws-build-target}}
+    username: {{bosh-aws-build-username}}
+    password: {{bosh-aws-build-password}}
+    deployment: rdpg-deploy-commit-on-latest-release
+
+- name: bosh-aws-lock
+  type: pool
+  source:
+    uri: git@github.com:starkandwayne/concourse_locks.git
+    branch: master
+    private_key: {{github-concourse-locks-private-key}}
+    # Change to parameter
+    pool: ci/aws/bosh

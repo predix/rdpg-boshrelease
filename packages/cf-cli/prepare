@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+package="cf-cli"
+version="6.13.0"
+file="${package}-${version}.tar.gz"
+url="https://cli.run.pivotal.io/stable?release=linux64-binary&version=${version}&source=github-rel"
+
+if [[ ! -s "${package}/${file}" ]]
+then
+  mkdir -p ${package}
+  curl -sL "${url}" -o "${package}/${file}"
+fi

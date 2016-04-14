@@ -1,0 +1,58 @@
+#!/var/vcap/packages/bash-4.3/bin/bash
+t
+# TODO: Investigate what monit_debugger was providing that we can emit here
+#
+mkdir -p "/var/vcap/sys/log/pgbdr/"
+exec &>> "/var/vcap/sys/log/pgbdr/pgbdr.log"
+echo -e "$(date +'%Y-%m-%dT%H:%M:%S')\$> $0 $*"
+
+set -e # exit immediately if a simple command exits with a non-zero status
+set -u # report the usage of uninitialized variables
+
+vmName="<%= name %>" # BOSH VM name
+vmIndex="<%= index %>" # Index within cluster
+vmFullName="${vmName}/${vmIndex}" # full job name
+
+jobName="pgbdr"
+
+source "/var/vcap/jobs/${jobName}/shell/functions"
+
+<% if p('pgbdr.debug') == "true" %>turn_debugging_on<% end %>
+
+jobPath="/var/vcap/jobs/${jobName}"
+jobRunPath="/var/vcap/sys/run/${jobName}"
+jobLogPath="/var/vcap/sys/log/${jobName}"
+jobTmpPath="/var/vcap/sys/tmp/${jobName}"
+storePath="/var/vcap/store/${jobName}"
+pgbdrPkgPath="/var/vcap/packages/pgbdr"
+databasePath="${storePath}/data"
+pidFile="${databasePath}/postmaster.pid"
+
+userName="vcap"
+groupName="vcap"
+
+LANG="en_US.UTF-8"
+HOME="${HOME:-"/home/${userName}"}"
+LD_LIBRARY_PATH="${pgbdrPkgPath}/lib"
+export LANG HOME LD_LIBRARY_PATH
+
+maxConn="<%= if p('rdpgd_service.max_instances_limit',nil).to_i > 0
+  p('rdpgd_service.max_instances_limit',nil).to_i * 2 + 50
+else 
+  p('pgbdr.max_connections',nil).to_i
+end %>"
+
+avMaxWorkers="<%= p('pgbdr.autovacuum_max_workers') %>"
+
+add_packages_to_path
+
+# if [[ $UID == 0 ]] 
+# then
+#   if ! grep -q '^postgres:' /etc/passwd
+#   then useradd -m -g vcap -d ${storePath} postgres &>/dev/null
+#   fi
+#   usermod -a -G adm -G dialout postgres
+# fi
+
+configure_job_paths
+

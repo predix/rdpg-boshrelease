@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -e
+
+package="haproxy"
+version="1.5.12"
+file="${package}-${version}.tar.gz"
+
+tar zxf ${package}/${file}
+
+cd ${file//.tar.gz}
+
+make_flags=(
+  TARGET="linux2628"
+  USE_LINUX_TPROXY=1
+  USE_PCRE=1 
+  USE_STATIC_PCRE=1
+  USE_OPENSSL=1 
+  USE_ZLIB=1
+  USE_STATIC_ZLIB=1
+  USE_LIBCRYPT=1
+  PREFIX="${BOSH_INSTALL_TARGET}"
+  PCREDIR="/var/vcap/packages/pcre"
+  SBINDIR="${BOSH_INSTALL_TARGET}/bin"
+  ADDINC="-I/var/vcap/packages/pcre/include -I/var/vcap/packages/zlib/include"
+  ADDLIB="-I/var/vcap/packages/pcre/lib -I/var/vcap/packages/zlib/lib"
+  USE_STATIC_PCRE=1
+)
+
+make "${make_flags[@]}"
+
+make "${make_flags[@]}" install
+

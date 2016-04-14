@@ -1,0 +1,101 @@
+---
+name: rdpgd-manager
+packages:
+- bash-4.3
+- rdpgd
+- pgbouncer
+- pgbdr
+templates:
+  bin/control: bin/control
+  shell/env: shell/env
+  shell/functions: shell/functions
+  config/pgbouncer/pgbouncer.ini: config/pgbouncer/pgbouncer.ini
+  config/pgbouncer/users: config/pgbouncer/users
+properties:
+  rdpgd_manager.debug:
+    description: "Enable debug output, can be 'true' or 'false' (default)."
+    default: "false"
+  rdpgd_manager.db_pass:
+    description: "management database password. (Can be overridden in manifest)."
+  rdpgd_manager.log_level:
+    description: "RDPG Agent Logging Level (lowercase) {trace,debug,error,...}"
+    default: "error"
+  rdpgd_manager.admin_port:
+    description: "RDPG Agent Admin Port"
+    default: "58888"
+  rdpgd_manager.admin_user:
+    description: "RDPG Agent Admin User"
+    default: "rdpg"
+  rdpgd_manager.admin_pass:
+    description: "RDPG Agent Admin Pass"
+    default: "admin"
+  rdpgd_manager.admin_pg_uri:
+    description: "RDPG Agent Admin Database PG URI"
+    default: "postgres://postgres:admin@127.0.0.1:7432/rdpg?sslmode=disable&connect_timeout=5&fallback_application_name=rdpgd"
+  rdpgd_manager.sb_port:
+    description: "RDPG Agent CF SB Port"
+    default: "8888"
+  rdpgd_manager.sb_user:
+    description: "RDPG Agent CF SB User"
+    default: "cfadmin"
+  rdpgd_manager.sb_pass:
+    description: "RDPG Agent CF SB Pass"
+    default: "cfadmin"
+  rdpgd_manager.cluster_name:
+    description: "Cluster Domain Name eg (manager, sc1,sc2,sc3,...)"
+    default: "rdpgmc"
+
+  pgbouncer.debug:
+    description: "Enable debug output, can be 'true' or 'false' (default)."
+    default: "false"
+  pgbouncer.listen_addr:
+    description: "pgbouncer administration listen address."
+    default: "*"
+  pgbouncer.listen_port:
+    description: "pgbouncer administration listen port."
+    default: "6432"
+  pgbouncer.admin_user:
+    description: "pgbouncer administration user name."
+  pgbouncer.admin_pass:
+    description: "pgbouncer administration user password."
+  pgbouncer.auth_type:
+    description: "pgbouncer administration authorization type."
+    default: "md5"
+  pgbouncer.pool_mode:
+    description: "pgbouncer connection pooling mode."
+    default: "session"
+
+  pgbdr.dsn_host:
+    description: "Field used to specify host value un pgbdr DSN response. See XXXX.md for accepted values"
+    default: "manifestIP"
+
+  rdpgd_manager.backups_s3_access_key:
+    description: "AWS Access Key for copying backup files to S3."
+    default: ""
+  rdpgd_manager.backups_s3_secret_key:
+    description: "AWS Secret Key for copying backup files to S3."
+    default: ""
+  rdpgd_manager.backups_s3_bucket_name:
+    description: "Bucket name for copying backup files to S3, this should be unique between deployments of RDPG."
+    default: ""
+  rdpgd_manager.backups_s3_region:
+    description: "AWS Region for copying backup files to S3."
+    default: "us-east-1"
+  rdpgd_manager.backups_s3_endpoint:
+    description: "Endpoint for copying backup files to S3, likely no change ever needed to default value."
+    default: "s3.amazonaws.com"
+  rdpgd_manager.backups_s3:
+    description: " for copying backup files to S3, set to ENABLED for scheduled tasks to be enabled."
+    default: "DISABLED"
+  rdpgd_manager.cluster_service:
+    description: "The service provided by the service cluster. (pgbdr, postgresql, pgsr, container)"
+    default: "pgbdr"
+  general.environment_name:
+    description: "Name given to the environment of the current deployment."
+  rdpgd_manager.local_retention_time:
+    description: "Number of hours to keep local backups stored if remote storage
+      is not configured for the deployment"
+    default: 48.0
+  rdpgd_manager.remote_retention_time:
+    description: "Number of hours to keep backups in remote storage."
+    default: 336.0 

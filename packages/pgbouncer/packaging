@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -e
+
+package="pgbouncer"
+version="1.5.5"
+file="${package}-${version}.tar.gz"
+
+tar zxf ${package}/${file}
+
+cd ${file//.tar*}
+
+./configure \
+  --with-libevent=/var/vcap/packages/libevent \
+  --prefix=${BOSH_INSTALL_TARGET}
+
+make
+
+make install

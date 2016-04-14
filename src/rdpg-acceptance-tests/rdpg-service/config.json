@@ -1,0 +1,20 @@
+{
+  "api": "https://api.10.244.0.34.xip.io",
+  "apps_domain": "10.244.0.34.xip.io",
+  "admin_user": "admin",
+  "admin_password": "admin",
+  "consul_ip": "10.244.2.2:8500",
+  "broker_url_base": "10.244.2.2:8888",
+  "broker_admin_user": "cfadmin",
+  "broker_admin_password": "cfadmin",
+  "service_name": "rdpg",
+  "plans": [
+    {
+      "plan_name": "gug",
+      "max_storage_mb": 512,
+      "max_user_connections": 10
+    }
+  ],
+  "skip_ssl_validation": true,
+  "timeout_scale": 0.05
+}

@@ -1,0 +1,26 @@
+#!/var/vcap/packages/bash-4.3/bin/bash
+
+if [[ -z ${1:-} ]] ; then fail "$0 start|stop|reload|console" ; fi ; action=$1 ; shift
+
+source "$(dirname $(dirname ${0}))/shell/env"
+
+ulimit -v unlimited
+ulimit -n 512000
+
+case ${action} in
+  (start)
+    user exec ${pkgPath}/bin/${jobName} -d ${storePath}/config/pgbouncer.ini
+    ;;
+  (stop)
+    send_signal SIGTERM
+    ;;
+  (reload)
+    user exec ${pkgPath}/bin/${jobName} -R ${storePath}/config/pgbouncer.ini &
+    ;;
+  (console)
+    exec /var/vcap/packages/pgbdr/bin/psql -U ${pgbAdminUser} --host 127.0.0.1 --port ${pgbListenPort} pgbouncer
+    ;;
+  (*)
+    fail "$0 ${action} :: unkown action"
+    ;;
+esac

@@ -1,0 +1,73 @@
+#!/var/vcap/packages/bash-4.3/bin/bash
+
+set -e # exit immediately if a simple command exits with a non-zero status
+set -u # report the usage of uninitialized variables
+
+jobName="rdpgd-manager"
+vmName="<%= name %>" # BOSH VM name
+vmIndex="<%= index %>" # Index within cluster
+deploymentName="<%= spec.deployment %>"
+domainName="<%= spec.dns_domain_name %>"
+vmFullName="${vmName}/${vmIndex}" # full job name
+nodeName="${deploymentName}-${vmName}-${vmIndex}"
+
+logPath="/var/vcap/sys/log/${jobName}"
+mkdir -p "${logPath}"
+exec &>> "${logPath}/${jobName}.log" # STD{OUT,ERR}
+echo -e "$(date +'%Y-%m-%dT%H:%M:%S') $(whoami) > $0 $*"
+
+source /var/vcap/jobs/${jobName}/shell/functions
+
+<% if p('rdpgd_manager.debug') == "true" %>turn_debugging_on<% end %>
+
+jobPath="/var/vcap/jobs/${jobName}"
+pkgPath="/var/vcap/packages/rdpgd"
+runPath="/var/vcap/sys/run/${jobName}"
+tmpPath="/var/vcap/sys/tmp/${jobName}"
+storePath="/var/vcap/store/${jobName}"
+
+userName="vcap"
+groupName="vcap"
+LANG="en_US.UTF-8"
+HOME="${HOME:-"/home/${userName}"}"
+pidFile="${runPath}/${jobName}.pid"
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}"
+export LANG HOME LD_LIBRARY_PATH
+
+RDPGD_LOG_LEVEL="<%= p('rdpgd_manager.log_level') %>"
+RDPGD_SB_PORT="<%= p('rdpgd_manager.sb_port') %>"
+RDPGD_SB_USER="<%= p('rdpgd_manager.sb_user') %>"
+RDPGD_SB_PASS="<%= p('rdpgd_manager.sb_pass') %>"
+RDPGD_ADMIN_PORT="<%= p('rdpgd_manager.admin_port') %>"
+RDPGD_ADMIN_USER="<%= p('rdpgd_manager.admin_user') %>"
+RDPGD_ADMIN_PASS="<%= p('rdpgd_manager.admin_pass') %>"
+RDPGD_ADMIN_PG_URI="<%= p('rdpgd_manager.admin_pg_uri') %>"
+RDPGD_PIDFILE=${pidFile}
+RDPGD_PG_PASS="<%= p('rdpgd_manager.db_pass') %>"
+RDPGD_CLUSTER="<%= p('rdpgd_manager.cluster_name') %>"
+RDPGD_CLUSTER_SERVICE="<%= p('rdpgd_manager.cluster_service') %>"
+RDPGD_PG_PORT="<%= p('postgresql.port') %>"
+RDPGD_PB_PORT="<%= p('pgbouncer.listen_port') %>"
+PGBDR_DSN_HOST="<%= p('pgbdr.dsn_host') %>"
+RDPGD_S3_AWS_ACCESS="<%= p('rdpgd_manager.backups_s3_access_key') %>"
+RDPGD_S3_AWS_SECRET="<%= p('rdpgd_manager.backups_s3_secret_key') %>"
+RDPGD_S3_BUCKET="<%= p('rdpgd_manager.backups_s3_bucket_name') %>"
+RDPGD_S3_REGION="<%= p('rdpgd_manager.backups_s3_region') %>"
+RDPGD_S3_ENDPOINT="<%= p('rdpgd_manager.backups_s3_endpoint') %>"
+RDPGD_S3_BACKUPS="<%= p('rdpgd_manager.backups_s3') %>"
+RDPGD_ENVIRONMENT_NAME="<%= p('general.environment_name') %>"
+RDPGD_LOCAL_RETENTION_TIME="<%= p('rdpgd_manager.local_retention_time') %>"
+RDPGD_REMOTE_RETENTION_TIME="<%= p('rdpgd_manager.remote_retention_time') %>"
+
+export RDPGD_PIDFILE RDPGD_LOG_LEVEL RDPGD_SB_PORT RDPGD_SB_USER RDPGD_SB_PASS \
+  RDPGD_ADMIN_PORT RDPGD_ADMIN_USER RDPGD_ADMIN_PASS RDPGD_ADMIN_PG_URI \
+  RDPGD_PG_PORT RDPGD_PB_PORT RDPGD_PG_PASS RDPGD_CLUSTER RDPGD_CLUSTER_SERVICE \
+  PGBDR_DSN_HOST RDPGD_S3_AWS_ACCESS RDPGD_S3_AWS_SECRET RDPGD_S3_BUCKET \
+  RDPGD_S3_REGION RDPGD_S3_ENDPOINT RDPGD_S3_BACKUPS RDPGD_ENVIRONMENT_NAME \
+  RDPGD_LOCAL_RETENTION_TIME RDPGD_REMOTE_RETENTION_TIME
+
+add_packages_to_path
+
+configure_job_paths
+
+set_pid

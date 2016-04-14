@@ -1,0 +1,21 @@
+# THIS FILE GETS COPIED IN BY THE RDPG-DEV SCRIPT WHEN IT RUNS.
+# IF YOU'RE SEEING THIS AT 'templates/s3.yml' as opposed to 
+# 'templates/.defaults/s3.yml', you can edit this freely without changes being
+# tracked by the git repo. i.e. you can put your creds here safely.
+
+# Change the information in this file to override the default s3 credentials.
+# The defaults turn s3 off. Specifically, these should no longer be set to 
+# "" if you plan to use s3, instead replaced with the actual values.
+properties:
+  rdpgd_manager:
+    backups_s3_access_key: "" 
+    backups_s3_secret_key: "" 
+    backups_s3_bucket_name: "" 
+    # 'ENABLED' and 'DISABLED' are the valid values.
+    backups_s3: "DISABLED"
+  rdpgd_service:
+    backups_s3_access_key: "" 
+    backups_s3_secret_key: "" 
+    backups_s3_bucket_name: "" 
+    # 'ENABLED' and 'DISABLED' are the valid values.
+    backups_s3: "DISABLED"

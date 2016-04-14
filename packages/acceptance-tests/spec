@@ -1,0 +1,5 @@
+name: acceptance-tests
+dependencies:
+  - golang-1.5
+files:
+  - rdpg-acceptance-tests/**/*

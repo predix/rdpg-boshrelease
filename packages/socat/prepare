@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+package="socat"
+version="2.0.0-b8"
+file="${package}-${version}.tar.gz"
+url="http://www.dest-unreach.org/socat/download/${file}"
+
+if [[ ! -s "${package}/${file}" ]]
+then
+  mkdir -p ${package}
+  curl -s "${url}" -o "${package}/${file}"
+fi

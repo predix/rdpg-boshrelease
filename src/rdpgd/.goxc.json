@@ -1,0 +1,23 @@
+{
+	"ArtifactsDest": ".releases",
+	"TasksExclude": [
+		"go-test"
+	],
+	"Arch": "amd64",
+	"Os": "linux",
+	"PackageVersion": "0.0.19",
+	"TaskSettings": {
+		"archive-tar-gz": {
+			"platforms": {
+				"linux": "TarGz"
+			}
+		},
+		"pkg-build": {
+			"metadata": {
+				"maintainer": "Wayne E. Seguin \u003cwayneeseguin@gmail.com\u003e"
+			},
+			"rmtemp": true
+		}
+	},
+	"ConfigVersion": "0.9"
+}

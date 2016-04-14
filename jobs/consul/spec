@@ -1,0 +1,37 @@
+---
+name: consul
+packages:
+- consul
+- consul-ui
+templates:
+  bin/control: bin/control
+  shell/env.erb: shell/env
+  shell/functions: shell/functions
+  config/agent.json: config/agent.json
+  config/ca.crt: config/ca.crt
+  config/consul.crt: config/consul.crt
+  config/consul.key: config/consul.key
+properties:
+  consul.debug:
+    description: "Enable debug output, can be 'true' or 'false' (default)."
+    default: "false"
+  consul.port:
+    description: "Consul Port."
+    default: 8500
+  consul.ssl_ca:
+    description: "CA Certificate for Consul Service."
+    default:
+  consul.ssl_cert:
+    description: "SSL Certificate for Consul Service."
+    default:
+  consul.ssl_key:
+    description: "SSL Key for Consul Service."
+    default:
+  consul.join_nodes:
+    description: "List of all consul Node IP Addresses."
+  consul.join_node:
+    description: "IP Address of node to join."
+  consul.server:
+    description: "Run in server mode (true) or agent mdoe (false)."
+  general.environment_name:
+    description: "Define Consul datacenter name"

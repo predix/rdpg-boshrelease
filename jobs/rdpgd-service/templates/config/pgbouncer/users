@@ -1,0 +1,4 @@
+<% require "digest/md5" %>
+"health" "md5<%= Digest::MD5.hexdigest("check"+"health") %>"
+"rdpg" "md5<%= Digest::MD5.hexdigest(p('rdpgd_service.db_pass')+"rdpg") %>"
+"<%= p('pgbouncer.admin_user') %>" "md5<%= Digest::MD5.hexdigest(p('pgbouncer.admin_pass')+p('pgbouncer.admin_user')) %>"

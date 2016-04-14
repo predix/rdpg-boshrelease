@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+package="postgresql"
+version="9.4.5"
+file="${package}-${version}.tar.gz"
+url="https://ftp.postgresql.org/pub/source/v${version}/${file}"
+
+if [[ ! -s "${package}/${file}" ]]
+then
+  mkdir -p ${package}
+  curl -s "${url}" -o "${package}/${file}"
+fi
+
+
+package="postgis"
+version="2.2.1"
+file="${package}-${version}.tar.gz"
+url="http://download.osgeo.org/postgis/source/${file}"
+
+#http://download.osgeo.org/postgis/source/postgis-2.2.1.tar.gz
+
+if [[ ! -s "${package}/${file}" ]]
+then
+  mkdir -p ${package}
+  curl -s "${url}" -o "${package}/${file}"
+fi

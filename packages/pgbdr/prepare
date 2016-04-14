@@ -1,0 +1,49 @@
+#!/bin/bash
+
+set -e -u -x
+
+package="pgbdr"
+gitURL="git://git.postgresql.org/git/2ndquadrant_bdr.git"
+releasePath=$(dirname ${PWD})
+packagePath="${PWD}/${package}"
+tmpPath="${releasePath}/tmp"
+srcPath="${releasePath}/src"
+mkdir -p ${packagePath} ${tmpPath} ${srcPath}
+
+if [[ ! -s "${packagePath}/pgbdr.tar.xz" ]]
+then
+  if [[ ! -d ${srcPath}/pgbdr ]]
+  then git clone -b bdr-pg/REL9_4_STABLE ${gitURL} ${srcPath}/pgbdr
+  fi
+
+  time (
+    rsync -a --exclude '.git' ${srcPath}/pgbdr/ ${tmpPath}/pgbdr/
+    cd ${tmpPath}
+    rm -f pgbdr.tar pgbdr.tar.xz
+    tar -cf pgbdr.tar pgbdr
+    xz -9 pgbdr.tar
+    mv pgbdr.tar.xz ${packagePath}/
+    echo "${packagePath}/pgbdr.tar.xz"
+  )&
+fi
+
+if [[ ! -s "${packagePath}/pgbdr-extension.tar.xz" ]]
+then
+  if [[ ! -d ${srcPath}/pgbdr-extension ]]
+  then git clone -b bdr-plugin/REL0_9_STABLE ${gitURL} ${srcPath}/pgbdr-extension
+  fi
+
+  time (
+    rsync -a --exclude '.git' ${srcPath}/pgbdr-extension/ ${tmpPath}/pgbdr-extension/
+    cd ${tmpPath}
+    rm -f pgbdr-extension.tar pgbdr-extension.tar.xz
+    tar -cf pgbdr-extension.tar pgbdr-extension
+    xz -9 pgbdr-extension.tar
+    mv pgbdr-extension.tar.xz ${packagePath}/
+    echo "${packagePath}/pgbdr-extension.tar.xz"
+  )&
+fi
+
+wait
+
+exit 0

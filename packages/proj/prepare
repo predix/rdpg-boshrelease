@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+package="proj"
+version="4.9.2"
+file="${package}-${version}.tar.gz"
+url="http://download.osgeo.org/proj/${file}"
+
+##http://download.osgeo.org/proj/proj-4.9.2.tar.gz
+
+if [[ ! -s "${package}/${file}" ]]
+then
+  mkdir -p ${package}
+  curl -s "${url}" -o "${package}/${file}"
+fi

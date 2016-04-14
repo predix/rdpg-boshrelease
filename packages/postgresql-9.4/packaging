@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -e
+
+package="postgresql"
+version="9.4.5"
+file="${package}-${version}.tar.gz"
+
+tar zxvf "${package}/${file}"
+pushd "${file//.tar*}"
+./configure --prefix="${BOSH_INSTALL_TARGET}" --with-uuid=e2fs
+make install
+make -C contrib install
+
+popd
+
+package="postgis"
+version="2.2.1"
+file="${package}-${version}.tar.gz"
+
+tar zxvf "${package}/${file}"
+cd "${file//.tar*}"
+./configure --prefix="${BOSH_INSTALL_TARGET}" \
+  --with-pgconfig="/var/vcap/packages/postgresql-9.4/bin/pg_config" \
+  --with-geosconfig="/var/vcap/packages/geos/bin/geos-config" \
+  --with-projdir="/var/vcap/packages/proj/" \
+  --with-gdalconfig="/var/vcap/packages/gdal/bin/gdal-config"
+make
+make install

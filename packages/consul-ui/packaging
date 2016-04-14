@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -e
+
+package="consul-ui"
+version="0.5.0"
+file="${package}-${version}.zip"
+
+unzip ${package}/${file}
+
+cp -a dist/* $BOSH_INSTALL_TARGET
+

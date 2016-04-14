@@ -1,0 +1,190 @@
+---
+meta:
+  environment: rdpg-warden
+  stemcell:
+    name: bosh-warden-boshlite-centos-go_agent
+    version: latest
+
+  hba_config: |+
+    host    replication   postgres 10.0.0.0/8  trust
+    host    all           postgres 10.0.0.0/8  trust
+    host    replication   rdpg 10.0.0.0/8  trust
+    host    all           rdpg 10.0.0.0/8  trust
+    host    all           all 192.0.0.0/8  trust
+    host    all           all 172.0.0.0/8  trust
+    host    replication   all 172.0.0.0/8  trust
+    host    all           all 10.244.2.22/32  trust  #Add global-pgbouncer/0
+    host    all           all 10.244.2.28/32  trust  #Add global-pgbouncer/1
+
+disk_pools:
+- name: rdpgsc_disk
+  disk_size: 32768
+  cloud_properties: {}
+- name: rdpg_top_level_haproxy_disk
+  disk_size: 16384
+  cloud_properties: {}
+- name: rdpg_global_pgbouncer_disk
+  disk_size: 16384
+  cloud_properties: {}
+
+jobs:
+  - name: rdpgmc
+    resource_pool: rdpg
+    instances: 3
+    networks:
+      - name: rdpg
+        static_ips:
+          - 10.244.2.2
+          - 10.244.2.6
+          - 10.244.2.10
+    properties:
+      consul:
+        debug: "true"
+        server: true
+        join_node: 10.244.2.2
+        join_nodes:
+          - 10.244.2.2
+          - 10.244.2.6
+          - 10.244.2.10
+      rdpgd_manager:
+        debug: "true"
+        log_level: "trace"
+        db_pass: "admin"
+      pgbdr:
+        dsn_host: 10.244.2.16 # Point to if top-level-haproxy else leave empty so value in spec is used
+
+  - name: sc-pgbdr-m0-r0
+    resource_pool: rdpg
+    instances: 1
+    persistent_disk_pool: rdpgsc_disk
+    networks:
+      - name: rdpg
+    properties:
+      rdpgd_service:
+        matrix_name: sc-pgbdr-m0-r0
+
+  - name: sc-pgbdr-m0-r1
+    resource_pool: rdpg
+    instances: 1
+    persistent_disk_pool: rdpgsc_disk
+    networks:
+      - name: rdpg
+    properties:
+      rdpgd_service:
+        matrix_name: sc-pgbdr-m0-r1
+
+  - name: sc-pgbdr-m1-r0
+    resource_pool: rdpg
+    instances: 2
+    persistent_disk_pool: rdpgsc_disk
+    networks:
+      - name: rdpg
+    properties:
+      rdpgd_service:
+        cluster_service: "postgresql"
+        matrix_name: sc-pgbdr-m1-r0
+        extensions:
+          - postgis
+          - ltree
+
+  - name: top-level-haproxy
+    resource_pool: rdpg
+    instances: 1
+    persistent_disk_pool: rdpg_top_level_haproxy_disk
+    networks:
+      - name: rdpg
+        static_ips:
+          - 10.244.2.16
+  - name: global-pgbouncer
+    resource_pool: rdpg
+    instances: 2
+    persistent_disk_pool: rdpg_global_pgbouncer_disk
+    networks:
+      - name: rdpg
+        static_ips:
+          - 10.244.2.22
+          - 10.244.2.28
+    properties:
+      rdpgd-global-pgbouncer:
+        db_ip: "10.244.2.16"  #Always point to mc/0
+        consul_ip: 10.244.2.16:8500  #Route back through top-level-haproxy
+        frequency: "35"
+        log_level: "trace"
+        debug: "true"
+      global-pgbouncer:
+        max_client_conn: 10000
+
+  - name: acceptance_tests
+    resource_pool: errand_a
+    networks:
+      - name: rdpg
+    properties:
+      acceptance_tests:
+        api: https://api.bosh-lite.com
+        apps_domain: 10.244.0.34.xip.io
+        admin_user:    admin
+        admin_password:  admin
+
+        consul_ip: 10.244.2.2:8500
+
+        broker_url_base:  10.244.2.16:8888   #Point to either MC/0 or top-level-haproxy
+        broker_admin_user: cfadmin
+        broker_admin_password: cfadmin
+
+        service_name:  rdpg
+        plans:
+          - plan_name: gug
+            max_storage_mb: 512
+            max_user_connections: 10
+
+        skip_ssl_validation: true
+        timeout_scale: 0.05
+
+  - name: broker_registrar
+    resource_pool: errand_a
+    networks:
+      - name: rdpg
+    properties:
+      cf:
+        api_url: https://api.bosh-lite.com
+      broker:
+        host: 10.244.2.16:8888 #Point to either MC/0 or top-level-haproxy
+
+  - name: backup_tests
+    networks:
+      - name: rdpg
+    properties:
+      cf:
+        api_url: https://api.bosh-lite.com
+        apps_domain: bosh-lite.com
+
+  - name: broker_deregistrar
+    resource_pool: errand_a
+    networks:
+      - name: rdpg
+    properties:
+      cf:
+        api_url: https://api.bosh-lite.com
+
+compilation:
+  cloud_properties:
+    name: random
+
+resource_pools:
+  - name: rdpg
+    cloud_properties:
+      name: random
+
+  - name: errand_a
+    cloud_properties:
+      name: random
+
+networks:
+- name: rdpg
+  type: manual
+  subnets:
+  - range: 10.244.2.0/24
+    name: nomad1
+    gateway: 10.244.2.1
+    static:
+      - 10.244.2.2 - 10.244.2.60

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -e
+
+package="libxml2"
+version="2.7.2"
+file="${package}-${version}.tar.gz"
+
+tar zxvf "${package}/${file}"
+cd "${file//.tar*}"
+./configure --prefix="${BOSH_INSTALL_TARGET}"
+make
+make install

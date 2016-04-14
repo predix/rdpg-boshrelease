@@ -1,0 +1,5 @@
+check process pgbouncer
+  with pidfile /var/vcap/sys/run/pgbouncer/pgbouncer.pid
+  start program "/var/vcap/jobs/pgbouncer/bin/control start" with timeout 60 seconds
+  stop program "/var/vcap/jobs/pgbouncer/bin/control stop"
+  group vcap

@@ -1,0 +1,5 @@
+---
+name: consul-template
+dependencies: []
+files:
+  - consul-template/consul-template-*.tar.gz

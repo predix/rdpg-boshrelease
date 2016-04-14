@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -e
+
+package="geos"
+version="3.5.0"
+file="${package}-${version}.tar.bz2"
+
+tar xvjf "${package}/${file}"
+cd "${file//.tar*}"
+./configure --prefix="${BOSH_INSTALL_TARGET}"
+make
+make install

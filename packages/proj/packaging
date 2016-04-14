@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -e
+
+package="proj"
+version="4.9.2"
+file="${package}-${version}.tar.gz"
+
+tar zxvf ${package}/${file}
+cd ${file//.tar*}
+./configure --prefix=${BOSH_INSTALL_TARGET}
+make
+make install

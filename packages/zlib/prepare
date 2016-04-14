@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+package="zlib"
+version="1.2.8"
+file="${package}-${version}.tar.gz"
+url="http://zlib.net/${file}"
+
+if [[ ! -s "${package}/${file}" ]]
+then
+  mkdir -p ${package}
+  curl -s "${url}" -o "${package}/${file}"
+fi

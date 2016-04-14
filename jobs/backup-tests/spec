@@ -1,0 +1,47 @@
+---
+name: backup-tests
+packages:
+- golang-1.5
+- cf-cli
+- rdpg-backup-tests
+templates:
+  bin/run: bin/run
+  config/backup-tests.json: config/backup-tests.json
+properties:
+  cf.api_url:
+    description: "Cloud Foundry API URL - e.g. https://api.bosh-lite.com"
+  cf.apps_domain:
+    description: "Domain where cf apps get bound. URL for output app looks like: <appname>.<cf.apps_domain>"
+  cf.admin_username:
+    description: "Username for Cloud Foundry admin account"
+  cf.admin_password:
+    description: "Password corresponding to <cf.admin_username>"
+
+  rdpg.service_name:
+    description: "Name of exposed RDPG service."
+  rdpg.plan_names:
+    description: "A JSON array representing the list of Cloud Foundry plans to test for service <rdpg.service_name>"
+  rdpg.api_port: 
+    description: "The port on which the admin API listens for requests."
+    default: 58888
+  rdpg.api_username:
+    description: "The username used for http authentication with the RDPG admin API."
+    default: rdpg
+  rdpg.api_password:
+    description: "The password used for http authentication with the RDPG admin API."
+    default: admin
+  rdpg.restore_plan_names:
+    description: "A JSON array representing the items in 'rdpg.plan_names' for which restores should be tested"
+
+  rdpgd_service.backups_s3:
+    description: "A global setting that is set to ENABLED if rdpg has s3 configured, and DISABLED otherwise"
+
+  preferences.test_queue_backup:
+    description: "Whether to test backups using the normal task system in addition to initiating a backup directly without rdpg's task system."
+    default: true
+  preferences.worker_wait_period:
+    description: "How long (in seconds) to wait before checking to see if a queued backup has occurred. Only relevant if preferences.test_queue_backup is set to true."
+    default: 10
+  preferences.backup_wait_period: 
+    description: "How long (in seconds) to wait before testing backups after an app has been launched on the Cloud Foundry deployment."
+    default: 5

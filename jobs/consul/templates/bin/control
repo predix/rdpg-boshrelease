@@ -1,0 +1,41 @@
+#!/var/vcap/packages/bash-4.3/bin/bash
+
+if [[ -z ${1:-} ]] ; then fail "$0 start|stop" ; fi ; action=$1 ; shift
+
+source "$(dirname $(dirname ${0}))/shell/env"
+
+ulimit -v unlimited
+ulimit -n 512000
+
+if (( $UID == 0 ))
+then setcap cap_net_bind_service=+ep $(readlink -nf ${pkgPath}/bin/consul)
+fi
+
+user chown ${storePath}
+
+if ! grep -q 127.0.0.1 /etc/resolv.conf
+then sed -i -e '1i nameserver 127.0.0.1' /etc/resolv.conf
+fi
+
+args=""
+for _path in $(ls -d /var/vcap/{jobs,store}/*/config/* | awk '/config\/consul$/')
+do args+=" -config-dir ${_path} "
+done
+
+case ${action} in
+  (start)
+    echo $$ > ${pidFile} # So that Monit doesn't mistakenly reap the process.
+    user chown ${pidFile}
+    wait_for_server_cluster_ready
+    user exec ${pkgPath}/bin/consul agent -pid-file "${pidFile}" \
+      -config-dir "${jobPath}/config" ${args}
+    ;;
+  (stop)
+    ${pkgPath}/bin/consul leave
+    sleep 1
+    send_signal SIGTERM
+    ;;
+  (*)
+    fail "Unknown action ${action}"
+    ;;
+esac

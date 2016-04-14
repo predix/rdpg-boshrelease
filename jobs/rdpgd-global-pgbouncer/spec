@@ -1,0 +1,36 @@
+---
+name: rdpgd-global-pgbouncer
+packages:
+- bash-4.3
+- rdpgd
+- postgresql-9.4
+
+templates:
+  bin/control: bin/control
+  shell/env: shell/env
+  shell/functions: shell/functions
+
+properties:
+
+  rdpgd-global-pgbouncer.db_pass:
+    description: "management database password. (Can be overridden in manifest)."
+    default: "rdpg"
+  rdpgd-global-pgbouncer.db_user:
+    description: "rdpg admin postgres user"
+    default: "rdpg"
+  rdpgd-global-pgbouncer.db_port:
+    description: "rdpg db port"
+    default: "7432"
+  rdpgd-global-pgbouncer.frequency:
+    description: "Number of seconds to refresh pgbouncer.ini and user"
+    default: "15"
+  rdpgd-global-pgbouncer.db_ip:
+    description: "IP address to management cluster or top-level-haproxy"
+  rdpgd-global-pgbouncer.debug:
+    description: "Enable debug output, can be 'true' or 'false' (default)."
+    default: "false"
+  rdpgd-global-pgbouncer.log_level:
+    description: "RDPG Agent Logging Level (lowercase) {trace,debug,error,...}"
+    default: "error"
+  rdpgd-global-pgbouncer.consul_ip:
+    description: "IP Address to a Consul Server, use either MC node IP or top-level-haproxy IP"

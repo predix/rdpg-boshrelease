@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -e
+
+package="zlib"
+version="1.2.8"
+file="${package}-${version}.tar.gz"
+
+tar zxf ${package}/${file}
+
+cd ${file//.tar*}
+
+./configure --64 --prefix=${BOSH_INSTALL_TARGET}
+
+make
+
+make install

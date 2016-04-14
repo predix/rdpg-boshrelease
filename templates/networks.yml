@@ -1,0 +1,19 @@
+networks:
+- name: rdpg
+  type: manual
+  subnets:
+  - name: rdpg
+    dns:
+    - 10.202.95.105
+    gateway: 10.202.72.1
+    range: 10.202.72.0/25
+    reserved:
+    - 10.202.72.2-10.202.72.31
+    - 10.202.72.48-10.202.72.126
+    static: [10.202.72.32 - 10.202.72.40]
+    cloud_properties:
+      name: rdpg
+      subnet: subnet-xxxxxx
+      security_groups:
+      - sb-bosh-sg
+

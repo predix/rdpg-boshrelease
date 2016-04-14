@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -e
+
+package="consul-template"
+version="0.9.0"
+file="${package}-${version}.tar.gz"
+
+mkdir ${BOSH_INSTALL_TARGET}/bin
+
+tar zxf ${package}/${file} --strip-components=1 -C ${BOSH_INSTALL_TARGET}/bin
+

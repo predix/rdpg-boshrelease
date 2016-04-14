@@ -1,0 +1,189 @@
+---
+packages:
+- name: acceptance-tests
+  version: !binary |-
+    MWViYzQ0MWYwNWZmNmI0NGIxYTllNTZhYzBiM2JlMTFlNTc4OWY1ZA==
+  fingerprint: !binary |-
+    MWViYzQ0MWYwNWZmNmI0NGIxYTllNTZhYzBiM2JlMTFlNTc4OWY1ZA==
+  sha1: !binary |-
+    MGZhOWM3MzI5Zjk0YTk0ZThmNmUzZDQwMDFhZWVjM2I4ZmMzMDRlMg==
+  dependencies:
+  - golang1.4
+- name: bash-4.3
+  version: !binary |-
+    N2MxNzkyZmU2MTA2MzA4MjE5YWZjOWNkZjUzN2Q1OGUzZjU2ZDY0OQ==
+  fingerprint: !binary |-
+    N2MxNzkyZmU2MTA2MzA4MjE5YWZjOWNkZjUzN2Q1OGUzZjU2ZDY0OQ==
+  sha1: !binary |-
+    YTg0YjU2MDE0OWZlNGNhOThhNDk5YjM4MDkwYTIwNDY5YWQyOGRlNQ==
+  dependencies: []
+- name: consul-template
+  version: !binary |-
+    ZGJmOTJmYjA1NmY0ZmNkZjU5YTZmYzc2OWM0ODFmMjA0MGY1ODU5ZA==
+  fingerprint: !binary |-
+    ZGJmOTJmYjA1NmY0ZmNkZjU5YTZmYzc2OWM0ODFmMjA0MGY1ODU5ZA==
+  sha1: !binary |-
+    N2E1NTlhZjE1NjAyNGZmMmNhMDBlMWY3MzA4ZjdiOGJiODhmYjNkOQ==
+  dependencies: []
+- name: consul-ui
+  version: !binary |-
+    MTY0YzhmOTY2NWM5ZTJmYmVkMmQ3YzFkYjVhNzUwOTg0YmFkY2Y5OA==
+  fingerprint: !binary |-
+    MTY0YzhmOTY2NWM5ZTJmYmVkMmQ3YzFkYjVhNzUwOTg0YmFkY2Y5OA==
+  sha1: !binary |-
+    Yzg4NjhiZTVjMmM3NDJhM2RkYzg4MzRjYjVmNWE4OGFlZTNhODdhYg==
+  dependencies: []
+- name: consul
+  version: !binary |-
+    M2IxZmFmZDJmY2UyNzIyY2Q2ZjcwMzY2NmNlYjAyN2FkMjFkMDJjYw==
+  fingerprint: !binary |-
+    M2IxZmFmZDJmY2UyNzIyY2Q2ZjcwMzY2NmNlYjAyN2FkMjFkMDJjYw==
+  sha1: !binary |-
+    YzAxYmEzOGVlZjQ1MThlZDgzZDNlOWVjMTNkNjZiMGYzYzJkZWRmZg==
+  dependencies: []
+- name: golang1.4
+  version: !binary |-
+    MjU4Y2E3OWRjMjU3ZWMyN2ZhMjFmNjM2NmQyZDE4NDhmZjZmZGU3Zg==
+  fingerprint: !binary |-
+    MjU4Y2E3OWRjMjU3ZWMyN2ZhMjFmNjM2NmQyZDE4NDhmZjZmZGU3Zg==
+  sha1: !binary |-
+    MWU2NGNkYjBhOWZiYzc4MjdmMGY2OGZhNDZlZDVjYTA4ZWU5MmQzYg==
+  dependencies: []
+- name: haproxy
+  version: !binary |-
+    YzBkZjM1MmZkMjMwMDk3NzZlMjUzOTUwZDAwOWY3MmQ5ZGE0MjlkNw==
+  fingerprint: !binary |-
+    YzBkZjM1MmZkMjMwMDk3NzZlMjUzOTUwZDAwOWY3MmQ5ZGE0MjlkNw==
+  sha1: !binary |-
+    M2I0MWYwZWE5MTZkNDU3YzYwOTAzMGRkM2Y4ODFlMWY4NDYzN2VjZQ==
+  dependencies:
+  - pcre
+  - socat
+  - zlib
+- name: libevent
+  version: !binary |-
+    MzkxZWVhZGJiNGU5MDY2NzQ4ZWQ0YmRiZWY4NjIzMGJjOTRlODFmMg==
+  fingerprint: !binary |-
+    MzkxZWVhZGJiNGU5MDY2NzQ4ZWQ0YmRiZWY4NjIzMGJjOTRlODFmMg==
+  sha1: !binary |-
+    MDA2NzI4MTQ1YTVkNWIzZjdjMzZkYmFkOGFiYjQwMjdlOWQ4YzBmNw==
+  dependencies: []
+- name: pcre
+  version: !binary |-
+    MjE3ZTQ2MTIyNGM3Mjk4YjkzMWYzZWFlMzY0ODlmMGZlMDBkYzYyMg==
+  fingerprint: !binary |-
+    MjE3ZTQ2MTIyNGM3Mjk4YjkzMWYzZWFlMzY0ODlmMGZlMDBkYzYyMg==
+  sha1: !binary |-
+    ODY2N2ZiMGEzM2QxMmVkZDUxYjIxNjkwMGY2Y2E2MzRkNTc0YzQxZQ==
+  dependencies: []
+- name: pgbdr
+  version: !binary |-
+    ZjFkMjJlMDQ0NmI3ZmFmY2Y2ZTg1NDNiNzRkYzIxNDRmZjA5ZDQ2OA==
+  fingerprint: !binary |-
+    ZjFkMjJlMDQ0NmI3ZmFmY2Y2ZTg1NDNiNzRkYzIxNDRmZjA5ZDQ2OA==
+  sha1: !binary |-
+    ZjQwOWE0YzczOWM4OTllNGQ5NDJkMTgwMTIwYmQ0NDcxMWM5NDQ1Yg==
+  dependencies:
+  - bash-4.3
+- name: pgbouncer
+  version: !binary |-
+    MTFkZDcxZTI3MjlhNjcxNTYyOTM4NWM5NmE3ZDE5NGFiOGJkNDcyZg==
+  fingerprint: !binary |-
+    MTFkZDcxZTI3MjlhNjcxNTYyOTM4NWM5NmE3ZDE5NGFiOGJkNDcyZg==
+  sha1: !binary |-
+    OWI3ZjdiNTZjNTM3MzFiZmM0OTI5MzI1ODc2MDFjMjg1Yzk4YTAzNw==
+  dependencies:
+  - libevent
+- name: rdpgd
+  version: !binary |-
+    MWE1M2NiYzVlYzZmMmViNzM0Y2JlYTVmNjZiYWVlNTFlNDZiYmJmNQ==
+  fingerprint: !binary |-
+    MWE1M2NiYzVlYzZmMmViNzM0Y2JlYTVmNjZiYWVlNTFlNDZiYmJmNQ==
+  sha1: !binary |-
+    MWYxMzQ2NGZlN2IyY2FmNWViMmZlOTlhMjkwZjcxZTRjZjg5N2QzOQ==
+  dependencies:
+  - golang1.4
+- name: socat
+  version: !binary |-
+    YmExNzFmOWNmM2QzMzgwNWJlNWI4YWI4NmYxYzlkMDllYzMzZGU4OQ==
+  fingerprint: !binary |-
+    YmExNzFmOWNmM2QzMzgwNWJlNWI4YWI4NmYxYzlkMDllYzMzZGU4OQ==
+  sha1: !binary |-
+    ZDkyYzUwMjk0NmRlODgzNzE1OTU3ZmU5ZDBmZWZkMTE1YjJiNzAxNw==
+  dependencies: []
+- name: zlib
+  version: !binary |-
+    Zjk4ZDczNmM4NTJhODFjODZhNzdhNmY2ODdiOGMzZGNmYTNiOTIwNg==
+  fingerprint: !binary |-
+    Zjk4ZDczNmM4NTJhODFjODZhNzdhNmY2ODdiOGMzZGNmYTNiOTIwNg==
+  sha1: !binary |-
+    ZDFjZWFlYmZlYzUyMTcxZDdjMWQ3NDgxMGE1Yzg0NjExZWU1NDVkZg==
+  dependencies: []
+jobs:
+- name: acceptance-tests
+  version: !binary |-
+    ZTk4ODdkZGRkZWVmZmIzZWEwZGYxY2ZkMmQ5NjdiMDQ0ZDFkMWViZg==
+  fingerprint: !binary |-
+    ZTk4ODdkZGRkZWVmZmIzZWEwZGYxY2ZkMmQ5NjdiMDQ0ZDFkMWViZg==
+  sha1: !binary |-
+    NGEwZTZiOGE3ZjRkZDk1ZjZjNGQ1NTI0MDA0OGY4M2FlYmE1NjY5Mw==
+- name: consul-template
+  version: !binary |-
+    NDg0OWVmZTEyMTk4MTZhNTBhMmZjNDE0ZTBjYWM0NzYwNDc5ODE4Yw==
+  fingerprint: !binary |-
+    NDg0OWVmZTEyMTk4MTZhNTBhMmZjNDE0ZTBjYWM0NzYwNDc5ODE4Yw==
+  sha1: !binary |-
+    YzJkNDM4YTdkNmMxNjE2NWQwNjczY2Q0YmZjNDg3YmQ2NDc1MzE5MA==
+- name: consul
+  version: !binary |-
+    NzdmYjYxNWI1YWMyYmRiYjllZDBjYzdmNzNiODdiYjU0MGRjZDEwYg==
+  fingerprint: !binary |-
+    NzdmYjYxNWI1YWMyYmRiYjllZDBjYzdmNzNiODdiYjU0MGRjZDEwYg==
+  sha1: !binary |-
+    Mzg4NDhiNDU5MTIyOTMzZTRmMTIxYTRiZjUzYjAxMTBlN2M0ZDNkMA==
+- name: haproxy
+  version: !binary |-
+    MmNhNDhlNWU0ZDk5ZWM4NGQ4MjQzNzgwYWZhMDlkZTcyNmQwMzczYw==
+  fingerprint: !binary |-
+    MmNhNDhlNWU0ZDk5ZWM4NGQ4MjQzNzgwYWZhMDlkZTcyNmQwMzczYw==
+  sha1: !binary |-
+    ZDVmYjNiZDM1NDM2MTZhOGUyZGYyYThlYjNkNjRjOGJlM2FjMWQ3Yg==
+- name: pgbdr
+  version: !binary |-
+    ZWY3YmI1ZjdkZjA3OTRhMDc0ZjA4MDllMTliNzU3NjZlZmM5ZGY4ZQ==
+  fingerprint: !binary |-
+    ZWY3YmI1ZjdkZjA3OTRhMDc0ZjA4MDllMTliNzU3NjZlZmM5ZGY4ZQ==
+  sha1: !binary |-
+    ODNkNTRmYTM4MzNhYTI0ODU4ZTZiNWM0NDMzNTlhZGIwZGJjZTJlMQ==
+- name: pgbouncer
+  version: !binary |-
+    ZWQ1MjMxNWVlNGExZmUwYjdhYWIzMDViMDJlMjVhMzI2YmNlMmE3Ng==
+  fingerprint: !binary |-
+    ZWQ1MjMxNWVlNGExZmUwYjdhYWIzMDViMDJlMjVhMzI2YmNlMmE3Ng==
+  sha1: !binary |-
+    ZjFmZTBiZDk4NDA5ZDQyMTAzNTU5ZDY5NGZiNjcyNDM2MGRmZDcyOA==
+- name: rdpgd-manager
+  version: !binary |-
+    MTA0ZGM4YmY2NDE3YWY5NzI5MjQ5OTA0NjY5YWUyOTVjNjRkZGM5Mg==
+  fingerprint: !binary |-
+    MTA0ZGM4YmY2NDE3YWY5NzI5MjQ5OTA0NjY5YWUyOTVjNjRkZGM5Mg==
+  sha1: !binary |-
+    ZWUzMzM3OTM2NzQwMzQzYWY5M2U1ZThkMTI0NTQ3NGQ2M2Q1ZGFlZQ==
+- name: rdpgd-service
+  version: !binary |-
+    YTNjNGNmY2NjYTQxYmQzYmNiODFjYjNmMjYxYmZhMTY5ZTViZGU5Nw==
+  fingerprint: !binary |-
+    YTNjNGNmY2NjYTQxYmQzYmNiODFjYjNmMjYxYmZhMTY5ZTViZGU5Nw==
+  sha1: !binary |-
+    NGMwNmQyYjRhZDBmZGJiNDlkNDAyMDNjMTYzZjkzZDAyZDIxYWQwNA==
+license:
+  version: !binary |-
+    NjI2NmU2ZDcyNDYwZTBhYWNjZGEyNDQwMTQ1OTBiNGI2NDc0MzRlZg==
+  fingerprint: !binary |-
+    NjI2NmU2ZDcyNDYwZTBhYWNjZGEyNDQwMTQ1OTBiNGI2NDc0MzRlZg==
+  sha1: !binary |-
+    ZThkNzFlYjVhZjAwOTJjODg1MjMxNzYyNTA1NjE5NWNlYWY1OTZiZg==
+commit_hash: 4367af66
+uncommitted_changes: false
+name: rdpg
+version: 0.2.21

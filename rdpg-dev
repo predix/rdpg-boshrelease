@@ -1,0 +1,255 @@
+#!/usr/bin/env bash
+
+set -e -u
+
+fail() { echo -e "$*" ; exit 1 ; }
+
+bosh_cli_check() {
+  if ! command -v bosh &>/dev/null
+  then fail "'bosh' command was not found in your path, please 'gem install bosh_cli' and try again."
+  fi
+}
+
+bosh_target_check() {
+  boshTarget=$(bosh target 2>&1)
+  case "${boshTarget}" in
+    (Current\ target\ is*)
+      echo ${boshTarget}
+      ;;
+    (*)
+      fail "A bosh director is not targeted, please target a director and login then try again."
+      ;;
+  esac
+}
+
+latest_uploaded_stemcell() {
+  bosh stemcells | awk "/bosh/&&/${stemcellOS}/" | awk -F'|' '{ print $2, $3 }' |
+  sort -nr -k2 | head -n1 | awk '{ print $1 }'
+}
+
+usage() {
+  echo "
+  Usage: $0 <prepare|blobs|manifest|stemcell|release|destroy> [options]
+
+  Where [options] for 'manifest', 'stemcell' and 'prepare' actions are: aws, warden
+  "
+}
+
+requireCommands() {
+  for cmd in ${@}
+  do
+    if ! command -v ${cmd} &>/dev/null
+    then
+      echo "${cmd} must be installed and available in the PATH in order to run $0"
+      exit 1
+    fi
+  done
+}
+
+select_infrastructure() {
+  infrastructure=${1:-}
+  if ! [[ -n ${infrastructure:-} ]]
+  then
+    usage
+    fail
+  fi
+}
+
+prepare_blobs() {
+  [[ -d ${releasePath}/blobs ]] || mkdir ${releasePath}/blobs
+  echo "Preparing all packages..."
+  for script in ${releasePath}/packages/*/prepare
+  do
+    if [[ -s ${script} ]]
+    then
+      echo ${script}
+      ( cd ${releasePath}/blobs ; ${SHELL} ${script} )
+    fi
+  done
+}
+
+determine_stemcell() {
+  select_infrastructure $*
+  directorName=$(awk -F: '/target_name/{print $2}' ~/.bosh_config)
+  stemcellOS="${stemcellOS:-"centos"}"
+  directorCPI=$(bosh status | awk '/CPI/{print $2}')
+  [[ -d ${tmpPath} ]] || mkdir -p ${tmpPath}
+  case ${infrastructure} in
+    (aws)
+      if [[ ${directorCPI} != aws ]]
+      then fail "No AWS BOSH Director targeted. Please use 'bosh target' first."
+      fi
+      hypervisor="xen"
+      case ${stemcellOS} in
+        (ubuntu)
+          stemcellURL="http://bosh.io/stemcells/bosh-aws-xen-light-ubuntu-trusty-go_agent"
+          ;;
+        (centos)
+          stemcellURL="http://bosh.io/stemcells/bosh-aws-xen-light-centos-7-go_agent"
+          ;;
+        (*)
+          fail "Unknown Stemcell OS '${stemcellOS}'"
+          ;;
+      esac
+      ;;
+    (warden)
+      if ! [[ "${directorName}" =~ "Bosh Lite Director" ]]
+      then fail "No BOSH Lite  bosh-lite with warden CPI.\nPlease use 'bosh target' first."
+      fi
+      hypervisor="warden"
+      case ${stemcellOS} in
+        (ubuntu)
+          stemcellURL="https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-trusty-go_agent"
+          ;;
+        (centos)
+          stemcellURL="https://bosh.io/d/stemcells/bosh-warden-boshlite-centos-go_agent"
+          ;;
+        (*)
+          fail "Unknown Stemcell OS '${stemcellOS}'"
+          ;;
+      esac
+      ;;
+    (*)
+      usage
+      fail
+      ;;
+  esac
+  stemcell=${stemcell:-$(latest_uploaded_stemcell)}
+}
+
+prepare_stemcell() {
+  determine_stemcell $*
+  if [[ -z ${stemcell} ]]
+  then
+    pattern=$(basename ${stemcellURL} | sed -e 's/^bosh-/bosh-*/')
+    stemcellFile=$(find stemcells -iname "${pattern}*" | head -1)
+    if ! [[ -s ${stemcellFile} ]]
+    then
+      echo -e "\nDownloading latest ${hypervisor}/${stemcellOS} stemcell..."
+      if ! curl -sL ${stemcellURL} -o stemcells/${stemcellURL//*\//}.tgz
+      then
+        rm stemcells/${stemcellURL//*\//}.tgz
+        fail "Error downloading stemcell from ${stemcellURL} to stemcells/${stemcellURL//*\//}.tgz"
+      fi
+      stemcellFile="stemcells/${stemcellURL//*\//}.tgz"
+    fi
+
+    echo -e "\nUploading local stemcell ${stemcellFile}..."
+    bosh upload stemcell ${stemcellFile}
+    stemcell=$(latest_uploaded_stemcell)
+  fi
+}
+
+prepare_dev_release() {
+  bosh create release --force
+  bosh -n upload release
+}
+
+prepare_manifest() {
+  select_infrastructure $*
+  determine_stemcell $*
+
+  shift # remove the warden|aws to allow params passing to spruce below.
+  releaseName=$(basename $PWD | sed -e 's/-boshrelease//')
+  directorCPI=$(bosh status | awk '/CPI/{print $2}')
+  directorUUID=$(awk -F: '/target_uuid/{print $2}' ~/.bosh_config | tr -d ' ')
+  directorName=$(awk -F: '/target_name/{print $2}' ~/.bosh_config)
+  deploymentName=${bosh_deployment_name:-"${releaseName}-${infrastructure}"}
+
+  requireCommands spruce bosh
+  echo "Preparing to build the manifest... "
+
+  sed \
+    -e "s/DIRECTOR-UUID/${directorUUID}/g" \
+    -e "s/NAME/${deploymentName}/g" \
+    -e "s/STEMCELL/${stemcell}/g" \
+    -e "s/ENVIRONMENT/${releaseName}-${ENVIRONMENT:-"dev"}/g" \
+    "${templatesPath}/stub.yml" > "${tmpPath}/targeted-director-stub.yml"
+
+  echo "Merging templates using spruce..."
+  
+  if [[ ! -f ${templatesPath}/s3.yml ]]
+  then
+    cp ${templatesPath}/.defaults/s3.yml ${templatesPath}/
+  fi
+
+  spruce merge --prune meta \
+    "${templatesPath}/deployment.yml" \
+    "${templatesPath}/jobs.yml" \
+    "${templatesPath}/infrastructure/${infrastructure}.yml" \
+    "${tmpPath}/targeted-director-stub.yml" \
+    "${templatesPath}/s3.yml" \
+    $* > "${manifestsPath}/${deploymentName}-manifest.yml"
+
+  rm "${tmpPath}/targeted-director-stub.yml"
+
+  bosh deployment "${manifestsPath}/${deploymentName}-manifest.yml"
+
+  bosh status
+}
+
+if [[ ${DEBUG:-"false"} == "true" ]]
+then # Enable xtrace with context if debug is true.
+  export PS4='+(${BASH_SOURCE}:${LINENO})> ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+  set -x
+  set -v
+fi
+
+releasePath=$(cd $(dirname $0) ; echo $PWD)
+tmpPath=${releasePath}/tmp
+manifestsPath=${releasePath}/manifests
+stemcellsPath=${releasePath}/stemcells
+releaseName=$(awk -F: '/final_name/{print $2}' config/final.yml | tr -d ' ')
+templatesPath="${releasePath}/templates"
+
+if (( $# > 0 ))
+then
+  action=$1
+  shift
+else
+  usage
+  fail
+fi
+
+bosh_target_check
+bosh_cli_check
+
+declare -a args
+if (( ${#@} ))
+then args=($(echo "${@}"))
+fi
+case ${action} in
+  (prepare)
+    if (( ${#args[@]} == 0 ))
+    then
+      usage
+      fail
+    fi
+    prepare_blobs
+    prepare_dev_release
+    prepare_stemcell "${args[@]}"
+    prepare_manifest "${args[@]}"
+    ;;
+  (release|dev)
+    prepare_dev_release
+    ;;
+  (blobs)
+    prepare_blobs
+    ;;
+  (stemcell)
+    prepare_stemcell "${args[@]}"
+    ;;
+  (manifest)
+    prepare_manifest "${args[@]}"
+    ;;
+  (destroy|delete)
+    echo "bosh -n delete deployment rdpg-warden --force"
+    bosh -n delete deployment rdpg-warden --force
+    ;;
+  (*)
+    usage
+    fail "Unknown action ${action}."
+    ;;
+esac
+
+exit 0

@@ -1,0 +1,5 @@
+check process rdpgd-global-pgbouncer
+  with pidfile /var/vcap/sys/run/rdpgd-global-pgbouncer/rdpgd-global-pgbouncer.pid
+  start program "/var/vcap/jobs/rdpgd-global-pgbouncer/bin/control start" with timeout 300 seconds
+  stop program "/var/vcap/jobs/rdpgd-global-pgbouncer/bin/control stop"
+  group vcap

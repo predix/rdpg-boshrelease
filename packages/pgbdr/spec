@@ -1,0 +1,7 @@
+---
+name: pgbdr
+dependencies:
+  - bash-4.3
+files:
+  - pgbdr/pgbdr.tar.xz
+  - pgbdr/pgbdr-extension.tar.xz

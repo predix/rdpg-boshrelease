@@ -1,0 +1,5 @@
+check process top-level-haproxy
+  with pidfile /var/vcap/sys/run/top-level-haproxy/top-level-haproxy.pid
+  start program "/var/vcap/jobs/top-level-haproxy/bin/control start" with timeout 60 seconds
+  stop program "/var/vcap/jobs/top-level-haproxy/bin/control stop"
+  group vcap

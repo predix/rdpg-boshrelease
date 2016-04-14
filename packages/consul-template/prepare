@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+package="consul-template"
+version="0.9.0"
+file="${package}-${version}.tar.gz"
+url="https://github.com/hashicorp/consul-template/releases/download/v${version}/consul-template_${version}_linux_amd64.tar.gz"
+
+if [[ ! -s "${package}/${file}" ]]
+then
+  mkdir -p ${package}
+  curl -sL "${url}" -o "${package}/${file}"
+fi

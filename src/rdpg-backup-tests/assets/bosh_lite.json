@@ -1,0 +1,22 @@
+{
+  "service_name": "postgres",
+  "plan_names": [
+                     "shared-nr"
+                       ],
+  "restore_plan_names": [
+                     "shared-nr"
+                       ],
+  "rdpg_api_port": 58888,
+  "rdpg_api_username": "rdpg",
+  "rdpg_api_password": "admin",
+  "test_queue_backup": true,
+  "apps_domain": "bosh-lite.com", 
+  "api": "https://api.bosh-lite.com",
+  "admin_user": "admin",
+  "admin_password": "admin",
+  "create_permissive_security_group": true,
+  "skip_ssl_validation": true,
+	"worker_wait_period": 10,
+	"backup_wait_period": 10,
+	"s3_enabled": true
+}

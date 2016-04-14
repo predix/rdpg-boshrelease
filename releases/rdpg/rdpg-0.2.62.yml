@@ -1,0 +1,152 @@
+---
+packages:
+- name: acceptance-tests
+  version: 628ea57bb3e7f320f5db97b3367780233d892a0c
+  fingerprint: 628ea57bb3e7f320f5db97b3367780233d892a0c
+  sha1: dae6e88e5122bd55f0caceabfeb25aa8f2fbd6ed
+  dependencies:
+  - golang-1.5
+- name: bash-4.3
+  version: d428f265bba0786521d4e2c60e03c6d9a8e5aa8d
+  fingerprint: d428f265bba0786521d4e2c60e03c6d9a8e5aa8d
+  sha1: b893a3b7d7586a73ad14f6335b4fc997052eb495
+  dependencies: []
+- name: cf-cli
+  version: 8d3951ce26cd49ba65b2be25cbab5e8d44e890ab
+  fingerprint: 8d3951ce26cd49ba65b2be25cbab5e8d44e890ab
+  sha1: 44f422ec5a680a69d01881f34cac76d3bfd44113
+  dependencies: []
+- name: consul-template
+  version: dbf92fb056f4fcdf59a6fc769c481f2040f5859d
+  fingerprint: dbf92fb056f4fcdf59a6fc769c481f2040f5859d
+  sha1: 9663e892c1a9fce1e5d355dffca964ff6faf9bc2
+  dependencies: []
+- name: consul-ui
+  version: 164c8f9665c9e2fbed2d7c1db5a750984badcf98
+  fingerprint: 164c8f9665c9e2fbed2d7c1db5a750984badcf98
+  sha1: e0205c9e54a4d0ba8db5fc09d6e30f54ad2f3cc7
+  dependencies: []
+- name: consul
+  version: 3b1fafd2fce2722cd6f703666ceb027ad21d02cc
+  fingerprint: 3b1fafd2fce2722cd6f703666ceb027ad21d02cc
+  sha1: dade2cda4e8ecab8a94c062849f8026cfcc0d44d
+  dependencies: []
+- name: golang-1.5
+  version: 0602b57071fe6222933892ccc25a331574f55b3f
+  fingerprint: 0602b57071fe6222933892ccc25a331574f55b3f
+  sha1: 82db059513e7de5de1e57127f7dc79839e7443db
+  dependencies: []
+- name: haproxy
+  version: c0df352fd23009776e253950d009f72d9da429d7
+  fingerprint: c0df352fd23009776e253950d009f72d9da429d7
+  sha1: 58bf42c09160f7c444a2fbc681f311e2bb22fd4e
+  dependencies:
+  - pcre
+  - socat
+  - zlib
+- name: libevent
+  version: 391eeadbb4e9066748ed4bdbef86230bc94e81f2
+  fingerprint: 391eeadbb4e9066748ed4bdbef86230bc94e81f2
+  sha1: 682e00453c8ed4c17aab4c4c8902091159d28c5d
+  dependencies: []
+- name: pcre
+  version: 217e461224c7298b931f3eae36489f0fe00dc622
+  fingerprint: 217e461224c7298b931f3eae36489f0fe00dc622
+  sha1: 67d882d618756f49a2090dc4ddc942e75d7ecb9f
+  dependencies: []
+- name: pgbdr
+  version: f59d509188db9feb04a0622d04af0030a6831eed
+  fingerprint: f59d509188db9feb04a0622d04af0030a6831eed
+  sha1: 538c48c280e179954d2021c415291307bcca62ca
+  dependencies:
+  - bash-4.3
+- name: pgbouncer
+  version: 11dd71e2729a6715629385c96a7d194ab8bd472f
+  fingerprint: 11dd71e2729a6715629385c96a7d194ab8bd472f
+  sha1: da801255680ea874520f42a872b305daf466b04e
+  dependencies:
+  - libevent
+- name: postgresql-9.4
+  version: b2c913e2b04ace4977d3507b1b4fdcdf2fd5363f
+  fingerprint: b2c913e2b04ace4977d3507b1b4fdcdf2fd5363f
+  sha1: 23b55c83699be5a983bb1c61ac616212106bbd7a
+  dependencies: []
+- name: rdpg-backup-tests
+  version: 0f995a82d4b9175d22d9a21b5b14dfa458a9db4b
+  fingerprint: 0f995a82d4b9175d22d9a21b5b14dfa458a9db4b
+  sha1: d1f0dc2497877bf38e2c9f8be1d9aaee210b5bc8
+  dependencies:
+  - golang-1.5
+- name: rdpgd
+  version: 797681aa070f3857ad0909bb573d149577a735ac
+  fingerprint: 797681aa070f3857ad0909bb573d149577a735ac
+  sha1: 3fd075ea41307fb00569063946e8a8673ce564c8
+  dependencies:
+  - golang-1.5
+- name: socat
+  version: ba171f9cf3d33805be5b8ab86f1c9d09ec33de89
+  fingerprint: ba171f9cf3d33805be5b8ab86f1c9d09ec33de89
+  sha1: 4571def4812b68031778e434888e877a49efad16
+  dependencies: []
+- name: zlib
+  version: f98d736c852a81c86a77a6f687b8c3dcfa3b9206
+  fingerprint: f98d736c852a81c86a77a6f687b8c3dcfa3b9206
+  sha1: 1daa39dd0670a20b744edaf4f527f80d6b97bbbf
+  dependencies: []
+jobs:
+- name: acceptance-tests
+  version: 8a1f274f173977ab61388010496bb1e2384c0517
+  fingerprint: 8a1f274f173977ab61388010496bb1e2384c0517
+  sha1: 4d979143f14167487cfe13879a3e272652281334
+- name: backup-tests
+  version: c02d8b864e11ff8a8f91aa52baa5d0e835b31230
+  fingerprint: c02d8b864e11ff8a8f91aa52baa5d0e835b31230
+  sha1: 30ca6042b7ffd03dcd03a01cda3fad87b73419e3
+- name: broker-deregistrar
+  version: 8fd19febfd2d46bf54b1d221fcaaf3a17d592d9c
+  fingerprint: 8fd19febfd2d46bf54b1d221fcaaf3a17d592d9c
+  sha1: a100f13cd14188697a9f1ff5c89568b371ecb6f2
+- name: broker-registrar
+  version: cd61853497bfee96039528afd1258a54dcbe8f76
+  fingerprint: cd61853497bfee96039528afd1258a54dcbe8f76
+  sha1: 7294996635606dbc2cc3b8d4ed61ad4da6ee62c2
+- name: consul-template
+  version: 4849efe1219816a50a2fc414e0cac4760479818c
+  fingerprint: 4849efe1219816a50a2fc414e0cac4760479818c
+  sha1: 69a37cf2e0df95d12f0915be7e62ba6026c2dcd2
+- name: consul
+  version: 31654f84dc7068f446f46f89d9bddb7528c67832
+  fingerprint: 31654f84dc7068f446f46f89d9bddb7528c67832
+  sha1: e4c5d42d21f91fd9bddc505333fefcc1f15b533c
+- name: haproxy
+  version: ba17365b77a06acabd88718ca81d5ea06a3081dd
+  fingerprint: ba17365b77a06acabd88718ca81d5ea06a3081dd
+  sha1: 021e04ab8a9f3f16bd650fe251f2736a4bae6191
+- name: pgbdr
+  version: 7e5252bfde9d654a905ed0f55fa83091381d7ecc
+  fingerprint: 7e5252bfde9d654a905ed0f55fa83091381d7ecc
+  sha1: aa70472a05b6c0246c962cfc3b055f10d1c54c17
+- name: pgbouncer
+  version: 62ada35680fb2f4d28d5f19c7fa193244146d09d
+  fingerprint: 62ada35680fb2f4d28d5f19c7fa193244146d09d
+  sha1: eb60c7c2ae7b5d9e0d365b97f881db7123386a40
+- name: postgresql
+  version: 09d6609231091c6cfe2a3e85d2da4dcdab04f58b
+  fingerprint: 09d6609231091c6cfe2a3e85d2da4dcdab04f58b
+  sha1: dbfe9d309dd817843f5940850e7787f9d34365d9
+- name: rdpgd-manager
+  version: 7e466c5c5f99b4a71c5ad1cded22e1c51372526c
+  fingerprint: 7e466c5c5f99b4a71c5ad1cded22e1c51372526c
+  sha1: 52b7512df547e94f3f10f8120470a0f24303c39e
+- name: rdpgd-service
+  version: 469ebb2b934dd69afecc2c4ddde47a2df6b36b61
+  fingerprint: 469ebb2b934dd69afecc2c4ddde47a2df6b36b61
+  sha1: e276924b24877d6c84d6ca5b9c4c85f23ec2d0c5
+license:
+  version: 6266e6d72460e0aaccda244014590b4b647434ef
+  fingerprint: 6266e6d72460e0aaccda244014590b4b647434ef
+  sha1: ff32066fc27c12685b577ef3d9dbaf5e43714e58
+commit_hash: ab518017
+uncommitted_changes: false
+name: rdpg
+version: 0.2.62

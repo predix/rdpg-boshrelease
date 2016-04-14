@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -x
+package="consul-ui"
+version="0.5.0"
+file="${package}-${version}.zip"
+url="https://dl.bintray.com/mitchellh/consul/${version}_web_ui.zip"
+
+if [[ ! -s "${package}/${file}" ]]
+then
+  mkdir -p ${package}
+  curl -sL "${url}" -o "${package}/${file}"
+fi

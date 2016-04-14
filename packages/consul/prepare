@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -x
+package="consul"
+version="0.5.2"
+file="${package}-${version}.zip"
+url="https://dl.bintray.com/mitchellh/consul/${version}_linux_amd64.zip"
+
+if [[ ! -s "${package}/${file}" ]]
+then
+  mkdir -p ${package}
+  curl -sL "${url}" -o "${package}/${file}"
+fi

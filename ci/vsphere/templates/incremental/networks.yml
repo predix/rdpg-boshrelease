@@ -1,0 +1,15 @@
+networks:
+- name: rdpg
+  type: manual
+  subnets:
+  - name: rdpg
+    dns:
+    - 10.128.99.10
+    gateway: 10.129.96.1
+    range: 10.129.96.0/20
+    reserved:
+    - 10.129.96.2 - 10.129.99.20
+    - 10.129.99.40 - 10.129.111.254
+    static: [10.129.99.21 - 10.129.99.28]
+    cloud_properties:
+      name: SB_PCF_BOSH_SVC

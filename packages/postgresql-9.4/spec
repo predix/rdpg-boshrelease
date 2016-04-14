@@ -1,0 +1,10 @@
+---
+name: postgresql-9.4
+dependencies:
+- geos
+- proj
+- gdal
+- libxml2
+files:
+  - postgresql/postgresql-9.4*
+  - postgis/postgis-*.tar.gz

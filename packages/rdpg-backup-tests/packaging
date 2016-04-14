@@ -1,0 +1,15 @@
+#/usr/bin/env bash
+set -e
+
+LOCAL_PACKAGE="rdpg-backup-tests"
+GOLANG_PACKAGE="github.com/starkandwayne/rdpg-backup-tests"
+mkdir -p ${BOSH_INSTALL_TARGET}/src/${GOLANG_PACKAGE}
+cp -a ${LOCAL_PACKAGE}/* ${BOSH_INSTALL_TARGET}/src/${GOLANG_PACKAGE}
+cd ${BOSH_INSTALL_TARGET}/src/${GOLANG_PACKAGE}/vendor/github.com
+cp -r onsi ${BOSH_INSTALL_TARGET}/src/github.com
+
+export GOPATH=${BOSH_INSTALL_TARGET}
+export GOROOT=/var/vcap/packages/golang-1.5
+export PATH=${GOROOT}/bin:${PATH}
+
+go install -v github.com/onsi/ginkgo/ginkgo

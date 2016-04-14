@@ -1,0 +1,44 @@
+---
+name: global-pgbouncer
+packages:
+- bash-4.3
+- libevent
+- pgbouncer
+- postgresql-9.4
+templates:
+  bin/control: bin/control
+  shell/env.erb: shell/env
+  shell/functions: shell/functions
+  config/pgbouncer.ini: config/pgbouncer.ini
+  config/pgbouncer.ini.header: config/pgbouncer.ini.header
+  config/users: config/users
+  config/users.header: config/users.header
+properties:
+  global-pgbouncer.debug:
+    description: "Enable debug output, can be 'true' or 'false' (default)."
+    default: "false"
+  global-pgbouncer.listen_addr:
+    description: "pgbouncer administration listen address."
+    default: "*"
+  global-pgbouncer.listen_port:
+    description: "pgbouncer administration listen port."
+    default: "6432"
+  global-pgbouncer.admin_user:
+    description: "pgbouncer administration user name."
+  global-pgbouncer.admin_pass:
+    description: "pgbouncer administration user password."
+  global-pgbouncer.auth_type:
+    description: "pgbouncer administration authorization type."
+    default: "md5"
+  global-pgbouncer.pool_mode:
+    description: "pgbouncer connection pooling mode."
+    default: "session"
+  global-pgbouncer.max_client_conn:
+    description: "The max number of client connections per user."
+    default: "1000"
+  global-pgbouncer.max_user_connections:
+    description: "The max number of client connections per user."
+    default: "100"
+  global-pgbouncer.default_pool_size:
+    description: "The maximum number of connections between pgbouncer and postgres per database"
+    default: "20"

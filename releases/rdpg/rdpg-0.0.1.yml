@@ -1,0 +1,100 @@
+---
+packages:
+- name: bash-4.3
+  version: 6ab5699d321954ad72f4460bc60d3fd52d4fe09a
+  sha1: 3203ba86e565cf4c65772d7cc79372ed015ce8fc
+  fingerprint: 6ab5699d321954ad72f4460bc60d3fd52d4fe09a
+  dependencies: []
+- name: consul
+  version: ae616415d6af7955f07ffd0126d51271a3817504
+  sha1: 69b203dad1897e35bc2eee7e96bba3c3ab66ae1b
+  fingerprint: ae616415d6af7955f07ffd0126d51271a3817504
+  dependencies: []
+- name: consul-template
+  version: dbf92fb056f4fcdf59a6fc769c481f2040f5859d
+  sha1: 48674fb7f71a5c048c5af4809a2b4785d9cbb7b9
+  fingerprint: dbf92fb056f4fcdf59a6fc769c481f2040f5859d
+  dependencies: []
+- name: consul-ui
+  version: 164c8f9665c9e2fbed2d7c1db5a750984badcf98
+  sha1: ce157edce3bb442425cb1210a3e3290abdb2c5c8
+  fingerprint: 164c8f9665c9e2fbed2d7c1db5a750984badcf98
+  dependencies: []
+- name: haproxy
+  version: c0df352fd23009776e253950d009f72d9da429d7
+  sha1: c6e306dc8ffec949b937119e8e765d10af23e3af
+  fingerprint: c0df352fd23009776e253950d009f72d9da429d7
+  dependencies:
+  - pcre
+  - zlib
+  - socat
+- name: libevent
+  version: 391eeadbb4e9066748ed4bdbef86230bc94e81f2
+  sha1: dbbd931fc9bf124fb735c56d9e3341d6f48c8347
+  fingerprint: 391eeadbb4e9066748ed4bdbef86230bc94e81f2
+  dependencies: []
+- name: pcre
+  version: 217e461224c7298b931f3eae36489f0fe00dc622
+  sha1: 8e1e8ef3a459edb0405a38b3ccc85592c1fc74a6
+  fingerprint: 217e461224c7298b931f3eae36489f0fe00dc622
+  dependencies: []
+- name: pgbdr
+  version: f69a1eecb4c2715b7093772430130538ef1ad35c
+  sha1: 412ee30026ff349cc090aed26ea48186ff6c6816
+  fingerprint: f69a1eecb4c2715b7093772430130538ef1ad35c
+  dependencies:
+  - bash-4.3
+- name: pgbouncer
+  version: 11dd71e2729a6715629385c96a7d194ab8bd472f
+  sha1: 87e4bd990abe32eba3184b1f835084eb4b087aa5
+  fingerprint: 11dd71e2729a6715629385c96a7d194ab8bd472f
+  dependencies:
+  - libevent
+- name: rdpg-agent
+  version: 36790969378735a5029db493bd1cd9c9b321e718
+  sha1: a76c5a7138e8aceab74ba16f036f76b967061afa
+  fingerprint: 36790969378735a5029db493bd1cd9c9b321e718
+  dependencies: []
+- name: socat
+  version: ba171f9cf3d33805be5b8ab86f1c9d09ec33de89
+  sha1: 5b34f3a50cff59ddbdd46a30c8206de1911f0e94
+  fingerprint: ba171f9cf3d33805be5b8ab86f1c9d09ec33de89
+  dependencies: []
+- name: zlib
+  version: f98d736c852a81c86a77a6f687b8c3dcfa3b9206
+  sha1: 29cd5cd3896a591da734b14d4f60a3314541b94b
+  fingerprint: f98d736c852a81c86a77a6f687b8c3dcfa3b9206
+  dependencies: []
+jobs:
+- name: acceptance-tests
+  version: 5486f33f93091cbeba5578f8ea1cb4677a7d6337
+  fingerprint: 5486f33f93091cbeba5578f8ea1cb4677a7d6337
+  sha1: 9b5cbfdad405e6b91d59782c217bbae392826c4f
+- name: consul
+  version: 7dacde02fa5b5aa2bb615dce990a77cefa820791
+  fingerprint: 7dacde02fa5b5aa2bb615dce990a77cefa820791
+  sha1: 9507cd6b79fc3c15f436a135753cb2a665eeb439
+- name: consul-template
+  version: 9c6ce2c4346a3dce49b7e13d19c733adddcb5cc6
+  fingerprint: 9c6ce2c4346a3dce49b7e13d19c733adddcb5cc6
+  sha1: 87e568812abf7a773a79b64fdf0fa764709e11c5
+- name: haproxy
+  version: 6aa6e6741364f950cd006b0f7c5a92218ec680c5
+  fingerprint: 6aa6e6741364f950cd006b0f7c5a92218ec680c5
+  sha1: 307862dfe7b0d215ee84f0d15dcb26c1bd551ad7
+- name: pgbdr
+  version: 9da532736b6bf283d96a1c84a21ac8016453b1ff
+  fingerprint: 9da532736b6bf283d96a1c84a21ac8016453b1ff
+  sha1: e718355c512bc4e7dbb389020b7c5f89e4a09e31
+- name: pgbouncer
+  version: efcf6156e52e78eec86eeba4f48a4b91d84a67d8
+  fingerprint: efcf6156e52e78eec86eeba4f48a4b91d84a67d8
+  sha1: a0174522b59f47e0ab0b6dfc6c997462806b0460
+- name: rdpg
+  version: bb0d0db083a69bac183f0797fb7e80201942472f
+  fingerprint: bb0d0db083a69bac183f0797fb7e80201942472f
+  sha1: 6b2bbe9324f171f0d2cd38801c2dde27a1fd133c
+commit_hash: 328aa1d7
+uncommitted_changes: false
+name: rdpg
+version: 0.0.1

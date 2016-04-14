@@ -1,0 +1,53 @@
+jobs:
+- name: rdpgmc
+  properties:
+    pgbdr:
+      hba_config: |+
+        host    replication   postgres 10.10.1.0/24  trust
+        host    all           postgres 10.10.1.0/24  trust
+        host    replication   rdpg 10.10.1.0/24  trust
+        host    all           rdpg 10.10.1.0/24  trust
+
+- name: sc-pgbdr-m0-r0
+  properties:
+    pgbdr:
+      hba_config: |+
+        host    replication   postgres 10.10.1.0/24  trust
+        host    all           postgres 10.10.1.0/24  trust
+        host    replication   rdpg 10.10.1.0/24  trust
+        host    all           rdpg 10.10.1.0/24  trust
+    rdpgd_service:
+      pool_size: 10
+
+- name: sc-pgbdr-m0-r1
+  properties:
+    pgbdr:
+      hba_config: |+
+        host    replication   postgres 10.10.1.0/24  trust
+        host    all           postgres 10.10.1.0/24  trust
+        host    replication   rdpg 10.10.1.0/24  trust
+        host    all           rdpg 10.10.1.0/24  trust
+    rdpgd_service:
+      pool_size: 10
+
+- name: sc-pgbdr-m1-r0
+  properties:
+    postgresql:
+      hba_config: |+
+        host    replication   postgres 10.10.1.0/24  trust
+        host    all           postgres 10.10.1.0/24  trust
+        host    replication   rdpg 10.10.1.0/24  trust
+        host    all           rdpg 10.10.1.0/24  trust
+    rdpgd_service:
+      pool_size: 10
+
+disk_pools:
+- name: rdpgsc_disk
+  disk_size: 64_000
+  cloud_properties:
+    type: gp2
+
+resource_pools:
+- name: rdpg
+  cloud_properties:
+    instance_type: m3.2xlarge

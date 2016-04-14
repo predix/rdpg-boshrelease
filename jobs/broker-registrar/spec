@@ -1,0 +1,34 @@
+---
+name: broker-registrar
+packages:
+- cf-cli
+templates:
+  bin/run: bin/run
+properties:
+  cf.api_url:
+    description: 'Full URL of Cloud Foundry API'
+  cf.admin_username:
+    description: 'Username of the admin user'
+  cf.admin_password:
+    description: 'Password of the admin user'
+  broker.name:
+    description: 'Name of the service broker'
+    default: rdpg
+  broker.protocol:
+    description: 'Protocol (http/https) provided to the Cloud Controller when registering/deregistering the broker'
+    default: http
+  broker.host:
+    description: 'Host address of the service broker'
+  broker.port:
+    description: 'Port for the service broker'
+    default: 8888
+  broker.username:
+    description: 'Basic Auth username for the service broker'
+  broker.password:
+    description: 'Basic Auth password for the service broker'
+  rdpg.broker.enable_service_access:
+    description: 'Enable service access to all'
+    default: true
+  rdpg.broker.service_name:
+    description: 'Service name'
+    default: postgres

@@ -1,0 +1,6 @@
+set -e -x
+
+GOLANG_PACKAGE=github.com/starkandwayne/rdpg-acceptance-tests
+
+mkdir -p ${BOSH_INSTALL_TARGET}/src/${GOLANG_PACKAGE}
+cp -a rdpg-acceptance-tests/* ${BOSH_INSTALL_TARGET}/src/${GOLANG_PACKAGE}/

@@ -1,0 +1,16 @@
+jobs:
+  - name: broker_deregistrar
+    properties:
+      cf:
+        api_url: https://api.54.172.174.96.xip.io
+
+  - name: broker_registrar
+    properties:
+      cf:
+        api_url: https://api.54.172.174.96.xip.io
+
+  - name: backup_tests
+    properties:
+      cf:
+        api_url: https://api.54.172.174.96.xip.io
+        apps_domain: 54.172.174.96.xip.io

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -e
+
+package="pcre"
+version="8.37"
+file="${package}-${version}.tar.gz"
+
+tar zxvf ${package}/${file}
+
+cd ${file//.tar*}
+
+./configure --prefix=${BOSH_INSTALL_TARGET}
+
+make
+
+make install

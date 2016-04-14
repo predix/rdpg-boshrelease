@@ -1,0 +1,5 @@
+---
+name: socat
+dependencies: []
+files:
+  - socat/socat-*.tar.gz

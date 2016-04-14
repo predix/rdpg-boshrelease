@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+package="libevent"
+version="2.0.22"
+file="${package}-${version}.tar.gz"
+url="https://github.com/libevent/libevent/releases/download/release-2.0.22-stable/${package}-${version}-stable.tar.gz"
+
+if [[ ! -s "${package}/${file}" ]]
+then
+  mkdir -p ${package}
+  curl -sL "${url}" -o "${package}/${file}"
+fi

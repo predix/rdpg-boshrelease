@@ -1,0 +1,53 @@
+#!/var/vcap/packages/bash-4.3/bin/bash
+
+set -e # exit immediately if a simple command exits with a non-zero status
+set -u # report the usage of uninitialized variables
+
+jobName="rdpgd-global-pgbouncer"
+vmName="<%= name %>" # BOSH VM name
+vmIndex="<%= index %>" # Index within cluster
+deploymentName="<%= spec.deployment %>"
+domainName="<%= spec.dns_domain_name %>"
+vmFullName="${vmName}/${vmIndex}" # full job name
+nodeName="${deploymentName}-${vmName}-${vmIndex}"
+
+logPath="/var/vcap/sys/log/${jobName}"
+mkdir -p "${logPath}"
+exec &>> "${logPath}/${jobName}.log" # STD{OUT,ERR}
+echo -e "$(date +'%Y-%m-%dT%H:%M:%S') $(whoami) > $0 $*"
+
+source /var/vcap/jobs/${jobName}/shell/functions
+
+<% if p('rdpgd-global-pgbouncer.debug') == "true" %>turn_debugging_on<% end %>
+
+jobPath="/var/vcap/jobs/${jobName}"
+pkgPath="/var/vcap/packages/rdpgd"
+runPath="/var/vcap/sys/run/${jobName}"
+tmpPath="/var/vcap/sys/tmp/${jobName}"
+storePath="/var/vcap/store/${jobName}"
+
+userName="vcap"
+groupName="vcap"
+LANG="en_US.UTF-8"
+HOME="${HOME:-"/home/${userName}"}"
+pidFile="${runPath}/${jobName}.pid"
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}"
+export LANG HOME LD_LIBRARY_PATH
+
+RDPGD_LOG_LEVEL="<%= p('rdpgd-global-pgbouncer.log_level') %>"
+RDPGD_PG_USER="<%= p('rdpgd-global-pgbouncer.db_user') %>"
+RDPGD_PG_PASS="<%= p('rdpgd-global-pgbouncer.db_pass') %>"
+RDPGD_PG_PORT="<%= p('rdpgd-global-pgbouncer.db_port') %>"
+RDPGD_PG_IP="<%= p('rdpgd-global-pgbouncer.db_ip') %>"
+RDPGD_FREQUENCY="<%= p('rdpgd-global-pgbouncer.frequency') %>"
+RDPGD_CONSUL_IP="<%= p('rdpgd-global-pgbouncer.consul_ip') %>"
+RDPGD_PIDFILE=${pidFile}
+
+export RDPGD_PIDFILE RDPGD_PG_USER RDPGD_PG_PASS RDPGD_PG_PORT RDPGD_PG_IP \
+  RDPGD_FREQUENCY RDPGD_LOG_LEVEL RDPGD_CONSUL_IP
+
+add_packages_to_path
+
+configure_job_paths
+
+set_pid

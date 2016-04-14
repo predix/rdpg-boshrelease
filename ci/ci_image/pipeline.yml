@@ -1,0 +1,45 @@
+---
+jobs:
+- name: build-task-image
+  public: true
+  serial: true
+  plan:
+  - get: pipeline
+    resource: git-pipeline-docker-image
+    trigger: true
+  - get: cf-cli
+    trigger: true
+  - task: combined
+    config:
+      platform: linux
+      image: docker:///busybox
+      inputs:
+      - {name: pipeline, path: .}
+      - {name: cf-cli, path: ci/ci_image/cf-cli}
+      run: {path: echo}
+  - put: docker-image
+    params:
+      build: combined/ci/ci_image
+
+resources:
+- name: git-pipeline-docker-image
+  type: git
+  source:
+    uri: git@github.com:starkandwayne/rdpg-boshrelease.git
+    branch: master
+    private_key: {{github-private-key}}
+    paths: [ci/ci_image/*]
+
+- name: cf-cli
+  type: s3
+  source:
+    bucket: go-cli
+    regexp: releases/v(.*)/cf-linux-amd64.tgz
+
+- name: docker-image
+  type: docker-image
+  source:
+    email: {{docker-hub-email}}
+    username: {{docker-hub-username}}
+    password: {{docker-hub-password}}
+    repository: {{docker-create-hub-task-image}}

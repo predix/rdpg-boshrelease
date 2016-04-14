@@ -1,0 +1,33 @@
+#!/var/vcap/packages/bash-4.3/bin/bash
+
+if [[ -z ${1:-} ]] ; then fail "$0 start|stop|init|bootstrap" ; fi ; action=$1 ; shift 
+
+source "$(dirname $(dirname ${0}))/shell/env"
+
+case ${action} in
+  (start)
+    echo $$ > ${pidFile} # So that Monit doesn't mistakenly reap the process.
+    user chown ${pidFile}
+    ensure_consul_is_available
+    ensure_postgres_user_exists
+    configure_pgbouncer
+    exec ${pkgPath}/bin/rdpgd service
+    ;;
+  (stop)
+    send_signal SIGTERM 
+    sleep 3
+    if [[ -d /proc/${pid} ]]
+    then send_signal SIGQUIT
+    fi
+    exit 0
+    ;;
+  (bootstrap)
+    ensure_consul_is_available
+    ensure_postgres_user_exists
+    exec ${pkgPath}/bin/rdpgd bootstrap
+    ;;
+  (*)
+    fail "Unknown action ${action}"
+    ;;
+esac
+

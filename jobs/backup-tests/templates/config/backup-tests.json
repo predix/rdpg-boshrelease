@@ -1,0 +1,18 @@
+{
+  "api":            "<%= p('cf.api_url') %>",
+  "apps_domain":    "<%= p('cf.apps_domain') %>",
+  "admin_user":     "<%= p('cf.admin_username') %>",
+  "admin_password": "<%= p('cf.admin_password') %>",
+  "service_name":   "<%= p('rdpg.service_name') %>",
+  "plan_names":     <%= p('rdpg.plan_names') %>,
+  "rdpg_api_port":  <%= p('rdpg.api_port')%>,
+  "rdpg_api_username": "<%= p('rdpg.api_username') %>",
+	"rdpg_api_password": "<%= p('rdpg.api_password') %>",
+	"test_queue_backup": <%= p('preferences.test_queue_backup') %>,
+	"worker_wait_period": <%= p('preferences.worker_wait_period') %>,
+	"backup_wait_period": <%= p('preferences.backup_wait_period') %>,
+  "skip_ssl_validation": true,
+  "create_permissive_security_group": true,
+  "restore_plan_names": <%= p('rdpg.restore_plan_names') %>,
+  "s3_enabled": <%= p('rdpgd_service.backups_s3') == "ENABLED" %>
+}

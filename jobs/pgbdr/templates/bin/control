@@ -1,0 +1,25 @@
+#!/var/vcap/packages/bash-4.3/bin/bash
+
+if [[ -z ${1:-} ]] ; then fail "$0 start|stop" ; fi ; action=$1 ; shift
+
+source "$(dirname $(dirname ${0}))/shell/env"
+
+case ${action} in
+  (start)
+    configure_postgresql
+    configure_kernel_settings
+    user run ${pgbdrPkgPath}/bin/pg_ctl start -D ${databasePath} -s -t 300
+    renice_postmaster
+    ;;
+  (stop)
+    user run ${pgbdrPkgPath}/bin/pg_ctl stop -D ${databasePath} -m fast
+    rm -f ${pidFile}
+    exit 0 # Normal exit, return code 0
+    ;;
+  (reload)
+    user exec ${pgbdrPkgPath}/bin/pg_ctl reload -D ${databasePath}
+    ;;
+  (*)
+    fail "usage: $0 <start|stop>"
+    ;;
+esac

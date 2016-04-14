@@ -1,0 +1,7 @@
+---
+# this is a SOURCE package
+name: rdpg-backup-tests
+dependencies:
+  - golang-1.5
+files:
+  - rdpg-backup-tests/**/*

@@ -1,0 +1,60 @@
+---
+name: top-level-haproxy
+packages:
+- bash-4.3
+- haproxy
+- pcre
+- zlib
+- socat
+templates:
+  bin/control:        bin/control
+  shell/env:          shell/env
+  shell/functions:    shell/functions
+  config/haproxy.cfg: config/haproxy.cfg
+  config/ssl.pem:     config/ssl.pem
+properties:
+  top-level-haproxy.debug:
+    description: "Enable debug output, can be 'true' or 'false' (default)."
+    default: "false"
+  ha_proxy.ssl_pem:
+    description: "SSL certificate (PEM file)"
+    default: ""
+  ha_proxy.disable_http:
+    description: "Disable port 80 traffic"
+    default: false
+  ha_proxy.ssl_ciphers:
+    default: ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-CBC-SHA256:ECDHE-RSA-AES256-CBC-SHA384:ECDHE-RSA-AES128-CBC-SHA:ECDHE-RSA-AES256-CBC-SHA:AES128-SHA256:AES128-SHA:RC4-SHA
+    description: "List of SSL Ciphers that are passed to HAProxy"
+  top-level-haproxy.timeout_client:
+    description: "Client timeouts in seconds"
+    default: "60m"
+  top-level-haproxy.timeout_server:
+    description: "Server timeouts in seconds"
+    default: "60m"
+  top-level-haproxy.max_conn:
+    description: "Maximum connections to allow."
+    default: 64536
+  top-level-haproxy.timeout_connect:
+    description: "Conection Timeout."
+    default: "3600s"
+  top-level-haproxy.write_port:
+    description: "top-level-haproxy write port"
+    default: 5432
+  top-level-haproxy.read_port:
+    description: "top-level-haproxy read port."
+    default: 5433
+  top-level-haproxy.admin_port:
+    description: "HAProxy Stats Port."
+    default:  9999
+  top-level-haproxy.admin_user:
+    description: "HAProxy Admin User."
+    default: rdpgtop-level-haproxyadmin
+  top-level-haproxy.admin_pass:
+    description: "HAProxy Admin Pass."
+  top-level-haproxy.mc_nodes:
+    description: "IP addresses of the MC nodes running the Service Broker"
+  rdpgd_manager.sb_port:
+    description: "RDPG Agent CF SB Port"
+    default: "8888"
+  top-level-haproxy.global_pgbouncer_nodes:
+    description: "IP addresses of the global pgbouncer nodes"

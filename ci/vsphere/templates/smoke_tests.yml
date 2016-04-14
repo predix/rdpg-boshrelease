@@ -1,0 +1,26 @@
+jobs:
+  - name: smoke_tests
+    lifecycle: errand
+    templates:
+    - name: smoke-tests
+      release: postgres-smoke-tests
+    instances: 1
+    resource_pool: errand_a
+    networks:
+    - name: rdpg
+    update:
+      canaries: 10
+    properties:
+      cf:
+        api_url: https://api.10.129.100.102.xip.io
+        apps_domain: 10.129.100.102.xip.io
+        admin_username: admin
+        admin_password: admin
+      psql:
+        service_name: postgres
+        plan_names: '["shared", "shared-nr"]'
+      preferences:
+        num_insertions: 4
+releases:
+  - name: postgres-smoke-tests
+    version: latest

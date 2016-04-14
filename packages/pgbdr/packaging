@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e -u
+
+exec &> >(tee -a "${BOSH_INSTALL_TARGET}/compile.log") # STD{OUT,ERR}
+
+srcPath=${BOSH_INSTALL_TARGET}/src
+archivePath=$PWD/pgbdr
+
+mkdir -p ${srcPath}
+
+tar -Jxf ${archivePath}/pgbdr.tar.xz -C ${srcPath}
+tar -Jxf ${archivePath}/pgbdr-extension.tar.xz -C ${srcPath}
+
+cd ${srcPath}/pgbdr
+./configure --prefix=${BOSH_INSTALL_TARGET} --with-uuid=e2fs
+make install
+make -C contrib install
+
+cd ${srcPath}/pgbdr-extension
+export PATH="${BOSH_INSTALL_TARGET}/bin:$PATH"
+./configure --enable-bdr=yes --prefix=${BOSH_INSTALL_TARGET}
+make install

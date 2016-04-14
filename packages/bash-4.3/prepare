@@ -1,0 +1,35 @@
+#!/bin/bash
+
+version=4.3
+base_url=ftp://ftp.gnu.org/gnu/bash
+url="${base_url}/bash-${version}.tar.gz"
+file="bash-${version}.tar.gz"
+patchFile="bash-${version}-patches.tar.gz"
+_wd=${PWD}
+
+mkdir -p bash
+
+if [[ ! -s "bash/${file}" ]]
+then 
+  curl -s "${url}" -o "bash/${file}"
+fi
+
+if [[ ! -s "bash/${patchFile}" ]]
+then
+  mkdir -p bash-patches && cd bash-patches
+
+  patches=($( curl -s "${base_url}/bash-${version}-patches/" |
+  awk '!/sig/{print $NF}' | sort
+  ))
+
+  for patch in ${patches[@]}
+  do curl -s "${base_url}/bash-${version}-patches/${patch}"  -o "${patch}"
+  done
+
+  tar -zcf "${_wd}/bash/${patchFile}" ./bash${version//.}-*
+
+  cd ${_wd}
+
+  rm -rf ./bash-patches/
+fi
+

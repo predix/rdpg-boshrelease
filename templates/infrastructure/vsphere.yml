@@ -1,0 +1,105 @@
+---
+meta:
+  stemcell:
+    name: bosh-vsphere-esxi-centos-7-go_agent
+    version: latest
+
+disk_pools:
+- name: rdpgsc_disk
+  disk_size: 64000
+  cloud_properties: {}
+
+jobs:
+  - name: rdpgmc
+    resource_pool: rdpg
+    properties:
+      rdpgd_manager:
+        debug: "false"
+        log_level: "info"
+        db_pass: "CHANGEME@1ce12345!!!"
+        cluster_service: "pgbdr"
+
+  - name: sc-pgbdr-m0-r0
+    resource_pool: rdpg
+    persistent_disk_pool: rdpgsc_disk
+    properties:
+      rdpgd_service:
+        cluster_name: ""
+        matrix_name: sc-pgbdr-m0-r0
+        cluster_service: "pgbdr"
+
+
+  - name: sc-pgbdr-m0-r1
+    resource_pool: rdpg
+    persistent_disk_pool: rdpgsc_disk
+    properties:
+      rdpgd_service:
+        matrix_name: sc-pgbdr-m0-r1
+        cluster_service: "pgbdr"
+
+  - name: sc-pgbdr-m1-r0
+    resource_pool: rdpg
+    persistent_disk_pool: rdpgsc_disk
+    properties:
+      rdpgd_service:
+        matrix_name: sc-pgbdr-m1-r0
+        cluster_service: "postgresql"
+
+  - name: acceptance_tests
+    networks:
+      - name: rdpg
+        default: [dns, gateway]
+
+  - name: backup_tests
+    networks:
+      - name: rdpg
+        default: [dns, gateway]
+    properties:
+      cf:
+        api_url: YOUR_CF_API_HERE
+        apps_domain: YOUR_APPS_DOMAIN
+
+  - name: broker_registrar
+    networks:
+      - name: rdpg
+        default: [dns, gateway]
+    properties:
+      cf:
+        api_url: YOUR_CF_API_HERE
+
+  - name: broker_deregistrar
+    networks:
+      - name: rdpg
+        default: [dns, gateway]
+    properties:
+      cf:
+        api_url: YOUR_CF_API_HERE
+
+resource_pools:
+  - name: rdpg
+    network: rdpg
+    stemcell: (( grab meta.stemcell ))
+    cloud_properties:
+      cpu: 4
+      datacenters: (( param "please define datacenter for rdpg resource pool" ))
+      disk: 32768
+      ram: 16384
+
+  - name: errand_a
+    network: rdpg
+    stemcell: (( grab meta.stemcell ))
+    cloud_properties:
+      cpu: 1
+      datacenters: (( param "please define datacenter for errand_a resource pool" ))
+      disk: 4096
+      ram: 1024
+
+compilation:
+  workers: 3
+  network: rdpg
+  reuse_compilation_vms: true
+  cloud_properties:
+    datacenters: (( param "please define datacenter for compilation" ))
+    cpu: 1
+    disk: 8096
+    ram: 2048

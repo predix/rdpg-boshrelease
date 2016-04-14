@@ -1,0 +1,58 @@
+---
+name: acceptance-tests
+
+description: >
+  The acceptance tests errand can be configured to run full acceptance test
+  suite against a specific RDPG deployment. Consider running smoke tests
+  errand for a smaller set of tests.
+
+packages:
+- golang-1.5
+- acceptance-tests
+
+templates:
+  bin/run: bin/run
+  config/acceptance-tests-config.json.erb: config/acceptance-tests-config.json
+
+properties:
+  acceptance_tests.api:
+    description: Full URL of Cloud Foundry API
+  acceptance_tests.admin_user:
+    description: Username of the admin user
+  acceptance_tests.admin_password:
+    description: Password of the admin user
+  acceptance_tests.apps_domain:
+    description: Shared domain for pushed apps
+  acceptance_tests.skip_ssl_validation:
+    description: Whether to add --skip-ssl-validation for cf cli
+    default: false
+  acceptance_tests.service_name:
+    description: Not used yet
+
+  acceptance_tests.consul_ip:
+    description: Consul IP
+  
+  acceptance_tests.broker_admin_user:
+    description: Username for the RDPG service broker
+  acceptance_tests.broker_admin_password:
+    description: Password for the RDPG service broker
+  acceptance_tests.broker_url_base:
+    description: Base host:port or hostname for the RDPG service broker
+  general.environment_name:
+    description: The name of the datacenter cited in the consul properties of the RDPG Management Cluster
+  acceptance_tests.timeout_scale:
+    description: >
+      Scaling multiplier used to determine command timeouts,
+      decimal values are OK
+    default: 1
+
+  rdpgd_service.admin_port:
+    description: "RDPG Agent Admin Port"
+    default: "58888"
+  rdpgd_service.admin_user:
+    description: "RDPG Agent Admin User"
+    default: "rdpg"
+  rdpgd_service.admin_pass:
+    description: "RDPG Agent Admin Pass"
+    default: "admin"
+ 

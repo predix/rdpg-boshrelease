@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+set -x
+
+go install -v github.com/onsi/ginkgo/ginkgo
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd ${DIR}/../service
+
+CONFIG_PATH="../assets/bosh_lite.json" GO15VENDOREXPERIMENT=1 CF_COLOR=false CF_VERBOSE_OUTPUT=true ginkgo -r -v -noColor=true -keepGoing=true -trace=true -slowSpecThreshold=300

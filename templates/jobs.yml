@@ -1,0 +1,210 @@
+meta:
+  environment: ~
+
+disk_pools:
+- name: rdpgsc_disk
+
+jobs:
+  - name: rdpgmc
+    networks:
+    - name: rdpg
+      static_ips: (( static_ips(0,1,2) ))
+    properties:
+     consul:
+       server: true
+       join_nodes: (( grab jobs.rdpgmc.networks.rdpg.static_ips ))
+    resource_pool: rdpg
+    instances: 3
+    update:
+      serial: true
+      canaries: 0
+      max_in_flight: 1
+    templates:
+    - name: consul
+      release: rdpg
+    - name: pgbdr
+      release: rdpg
+    - name: pgbouncer
+      release: rdpg
+    - name: rdpgd-manager
+      release: rdpg
+
+  - name: top-level-haproxy
+    networks:
+    - name: rdpg
+    resource_pool: rdpg
+    instances: 0
+    update:
+      canaries: 0
+      max_in_flight: 1
+    templates:
+    - name: top-level-haproxy
+      release: rdpg
+
+  - name: global-pgbouncer
+    networks:
+    - name: rdpg
+    resource_pool: rdpg
+    instances: 0
+    update:
+      canaries: 0
+      max_in_flight: 1
+    templates:
+    - name: global-pgbouncer
+      release: rdpg
+    - name: rdpgd-global-pgbouncer
+      release: rdpg
+
+
+  - name: sc-pgbdr-m0-r0
+    networks:
+    - name: rdpg
+    resource_pool: rdpg
+    instances: 1
+    update:
+      canaries: 0
+      max_in_flight: 1
+    templates:
+    - name: consul
+      release: rdpg
+    - name: pgbdr
+      release: rdpg
+    - name: pgbouncer
+      release: rdpg
+    - name: haproxy
+      release: rdpg
+    - name: rdpgd-service
+      release: rdpg
+
+  - name: sc-pgbdr-m0-r1
+    networks:
+    - name: rdpg
+    resource_pool: rdpg
+    instances: 1
+    update:
+      canaries: 0
+      max_in_flight: 1
+    templates:
+    - name: consul
+      release: rdpg
+    - name: pgbdr
+      release: rdpg
+    - name: pgbouncer
+      release: rdpg
+    - name: haproxy
+      release: rdpg
+    - name: rdpgd-service
+      release: rdpg
+
+  - name: sc-pgbdr-m1-r0
+    networks:
+    - name: rdpg
+    properties:
+      consul:
+        debug: "false"
+        server: false
+        join_node: (( grab jobs.rdpgmc.networks.rdpg.static_ips.[0] ))
+    resource_pool: rdpg
+    instances: 1
+    update:
+      canaries: 0
+      max_in_flight: 1
+    templates:
+    - name: consul
+      release: rdpg
+    - name: postgresql
+      release: rdpg
+    - name: pgbouncer
+      release: rdpg
+    - name: haproxy
+      release: rdpg
+    - name: rdpgd-service
+      release: rdpg
+
+  - name: acceptance_tests
+    resource_pool: errand_a
+    templates:
+    - name: acceptance-tests
+      release: rdpg
+    instances: 1
+    lifecycle: errand
+    properties:
+      acceptance_tests:
+        api: https://api.bosh-lite.com  # Not used yet
+        apps_domain: 10.244.0.34.xip.io # Not used yet
+        admin_user:    admin # Not used yet
+        admin_password:  admin # Not used yet
+        consul_ip: (( concat jobs.rdpgmc.networks.rdpg.static_ips.[0] ":8500" ))
+        broker_url_base:  (( concat jobs.rdpgmc.networks.rdpg.static_ips.[0] ":8888" ))
+        broker_admin_user: cfadmin
+        broker_admin_password: cfadmin
+        service_name:  rdpg
+        plans:
+          - plan_name: gug
+            max_storage_mb: 512
+            max_user_connections: 10
+
+        skip_ssl_validation: true
+        timeout_scale: 0.05
+
+  - name: backup_tests
+    resource_pool: errand_a
+    templates:
+    - name: backup-tests
+      release: rdpg
+    instances: 1
+    lifecycle: errand
+    properties:
+      cf:
+        admin_username: admin
+        admin_password: admin
+      rdpg:
+        service_name: postgres
+        plan_names: '["shared","shared-nr"]'
+        restore_plan_names: '["shared-nr"]'
+        api_port: 58888
+        api_username: rdpg
+        api_password: admin
+      preferences:
+        test_queue_backup: true
+        worker_wait_period: 10
+        backup_wait_period: 5
+
+  - name: broker_registrar
+    resource_pool: errand_a
+    templates:
+    - name: broker-registrar
+      release: rdpg
+    instances: 1
+    lifecycle: errand
+    properties:
+      cf:
+        admin_username: admin
+        admin_password: admin
+      broker:
+        name: rdpg-sb
+##        host:  (( concat jobs.top-level-haproxy.networks.rdpg.static_ips.[0] ":8888" ))  #Moved up into warden.yml so it can be pointed to MC or top-level-haproxy
+        port: 8888
+        username: cfadmin
+        password: cfadmin
+      rdpg:
+        broker:
+          enable_service_access: true
+          service_name: postgres
+
+  - name: broker_deregistrar
+    resource_pool: errand_a
+    templates:
+    - name: broker-deregistrar
+      release: rdpg
+    instances: 1
+    lifecycle: errand
+    properties:
+      cf:
+        admin_username: admin
+        admin_password: admin
+      broker:
+        name: rdpg-sb
+      rdpg:
+        broker:
+          service_name: postgres

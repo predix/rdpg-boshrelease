@@ -1,0 +1,120 @@
+---
+name: rdpgd-service
+packages:
+- bash-4.3
+- rdpgd
+- pgbdr
+- pgbouncer
+- haproxy
+templates:
+  bin/control: bin/control
+  shell/env: shell/env
+  shell/functions: shell/functions
+  config/haproxy/haproxy.cfg: config/haproxy/haproxy.cfg
+  config/haproxy/haproxy.cfg.header: config/haproxy/haproxy.cfg.header
+  config/pgbouncer/pgbouncer.ini: config/pgbouncer/pgbouncer.ini
+  config/pgbouncer/users: config/pgbouncer/users
+properties:
+  rdpgd_service.debug:
+    description: "Enable debug output, can be 'true' or 'false' (default)."
+    default: "false"
+  rdpgd_service.db_pass:
+    description: "management database password. (Can be overridden in manifest)."
+  rdpgd_service.log_level:
+    description: "RDPG Agent Logging Level (lowercase) {trace,debug,error,...}"
+    default: "error"
+  rdpgd_service.admin_port:
+    description: "RDPG Agent Admin Port"
+    default: "58888"
+  rdpgd_service.admin_user:
+    description: "RDPG Agent Admin User"
+    default: "rdpg"
+  rdpgd_service.admin_pass:
+    description: "RDPG Agent Admin Pass"
+    default: "admin"
+  rdpgd_service.admin_pg_uri:
+    description: "RDPG Agent Admin Database PG URI"
+    default: "postgres://postgres:admin@127.0.0.1:7432/rdpg?sslmode=disable&connect_timeout=5&fallback_application_name=rdpgd"
+  rdpgd_service.cluster_name:
+    description: "Cluster Domain Name eg (manager, sc1,sc2,sc3,...)"
+    default: ""
+  rdpgd_service.matrix_name:
+    description: "Cluster Matrix Name eg (pgbdr-m0r0, pgbdr-m0r1,..., pgudr-m0r0,pgudr-m0r1,...)"
+    default: ""
+  rdpgd_service.type:
+    description: "Cluster Type eg (shared, dedicated)"
+  rdpgd_service.size:
+    description: "Cluster Size eg (small, medium, large)"
+  rdpgd_service.pool_size:
+    description: "Size of the pool of precreated available databases to maintain."
+  rdpgd_service.max_instances_allowed:
+    description: "The number of database instances allowed on service cluster. It shoulde be not be larger than max_instances_limit."
+    default: 12
+  rdpgd_service.max_instances_limit:
+    description: "The actual limit of instance number on service cluster"
+    default: "15"
+
+  pgbouncer.debug:
+    description: "Enable debug output, can be 'true' or 'false' (default)."
+    default: "false"
+  pgbouncer.listen_addr:
+    description: "pgbouncer administration listen address."
+    default: "*"
+  pgbouncer.listen_port:
+    description: "pgbouncer administration listen port."
+    default: "6432"
+  pgbouncer.admin_user:
+    description: "pgbouncer administration user name."
+  pgbouncer.admin_pass:
+    description: "pgbouncer administration user password."
+  pgbouncer.auth_type:
+    description: "pgbouncer administration authorization type."
+    default: "md5"
+  pgbouncer.pool_mode:
+    description: "pgbouncer connection pooling mode."
+    default: "session"
+  rdpgd_service.backups_s3_access_key:
+    description: "AWS Access Key for copying backup files to S3."
+    default: ""
+  rdpgd_service.backups_s3_secret_key:
+    description: "AWS Secret Key for copying backup files to S3."
+    default: ""
+  rdpgd_service.backups_s3_bucket_name:
+    description: "Bucket name for copying backup files to S3, this should be unique between deployments of RDPG."
+    default: ""
+  rdpgd_service.backups_s3_region:
+    description: "AWS Region for copying backup files to S3."
+    default: "us-east-1"
+  rdpgd_service.backups_s3_endpoint:
+    description: "Endpoint for copying backup files to S3, likely no change ever needed to default value."
+    default: "s3.amazonaws.com"
+  rdpgd_service.backups_s3:
+    description: " for copying backup files to S3, set to ENABLED for scheduled tasks to be enabled."
+    default: "DISABLED"
+
+  rdpgd_service.cluster_service:
+    description: "The service provided by the service cluster. (pgbdr, postgresql, pgsr, container)"
+    default: "pgbdr"
+  general.environment_name:
+    description: "The name given to the environment of this RDPG deployment"
+
+  rdpgd_service.local_retention_time:
+    description: "Number of hours to keep local backups stored if remote storage
+      is not configured for the deployment"
+    default: 48.0
+  rdpgd_service.remote_retention_time:
+    description: "Number of hours to keep backups in remote storage."
+    default: 336.0
+  pgbouncer.max_connections_per_db:
+    description: "The multiplier used per max_instances_limit to determine the max number of connections"
+    default: "30"
+  pgbouncer.max_user_connections:
+    description: "The max number of client connections per user."
+    default: "100"
+  pgbouncer.default_pool_size:
+    description: "The maximum number of connections between pgbouncer and postgres per database"
+    default: "20"
+
+  rdpgd_service.extensions:
+    description: "The list of additional extensions to add to user databases"
+    default: []

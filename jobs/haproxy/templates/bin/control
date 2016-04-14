@@ -1,0 +1,29 @@
+#!/var/vcap/packages/bash-4.3/bin/bash
+
+if [[ -z ${1:-} ]] ; then fail "$0 start|stop|reload" ; fi ; action=$1 ; shift
+
+source "$(dirname $(dirname ${0}))/shell/env"
+
+ulimit -n 512000
+
+case ${action} in
+  (start)
+    if (( ${pid:-0} > 0 )) && [[ -d /proc/${pid:-a} ]]
+    then echo "haproxy already running with pid ${pidFile}" ; exit 0
+    fi
+    exec ${pkgPath}/bin/haproxy \
+      -f "${jobPath}/config/haproxy.cfg" -p "${pidFile}" -D
+    ;;
+  (stop)
+    send_signal SIGTERM
+    ;;
+  (reload)
+    if (( ${pid:-0} > 0 ))
+    then exec ${pkgPath}/bin/haproxy \
+      -f "${jobPath}/config/haproxy.cfg" -p "${pidFile}" -sf ${pid}
+    fi
+    ;;
+  (*)
+    fail "Unknown action: ${action}, usage: $0 start|stop|reload"
+    ;;
+esac

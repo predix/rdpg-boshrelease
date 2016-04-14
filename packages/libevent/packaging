@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -e
+
+package="libevent"
+version="2.0.22"
+file="${package}-${version}.tar.gz"
+
+tar zxf ${package}/${package}-${version}.tar.gz
+
+cd ${file//.tar*}*/
+
+./configure --prefix=${BOSH_INSTALL_TARGET}
+
+make
+
+make install

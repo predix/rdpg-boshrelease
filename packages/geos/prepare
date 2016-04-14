@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+package="geos"
+version="3.5.0"
+file="${package}-${version}.tar.bz2"
+url="http://download.osgeo.org/geos/${file}"
+
+##http://download.osgeo.org/geos/geos-3.5.0.tar.bz2
+
+if [[ ! -s "${package}/${file}" ]]
+then
+  mkdir -p ${package}
+  curl -s "${url}" -o "${package}/${file}"
+fi

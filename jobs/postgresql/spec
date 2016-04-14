@@ -1,0 +1,83 @@
+---
+name: postgresql
+packages:
+- bash-4.3
+- postgresql-9.4
+- geos
+- proj
+- gdal
+- libxml2
+templates:
+  bin/control: bin/control
+  shell/env: shell/env
+  shell/functions: shell/functions
+  config/pg_hba.conf: config/pg_hba.conf
+  config/postgresql.conf: config/postgresql.conf
+  config/testdb.sql: config/testdb.sql
+properties:
+  postgresql.debug:
+    description: "Enable debug output, can be 'true' or 'false' (default)."
+    default: false
+  postgresql.port:
+    description: "postgresql database port (Can be overridden in manifest)."
+    default: "7432"
+  postgresql.hba_config:
+    description: "Extra pg_hba configuration lines (optional)."
+    default: ""
+  postgresql.autovacuum_max_workers:
+    description: "Maximum Number of Connections"
+    default: "10"
+  postgresql.shared_buffers:
+    description: "Shared Buffers"
+    default: "128MB"
+  postgresql.effective_cache_size:
+    description: "Effective Cache Size"
+    default: "512MB"
+  postgresql.work_mem:
+    description: "Working Memory (per connection)"
+    default: "262kB"
+  postgresql.maintenance_work_mem:
+    description: "Maintenance Working Memory"
+    default: "64MB"
+  postgresql.checkpoint_segments:
+    description: "Checkpoint Segments"
+    default: "32"
+  postgresql.checkpoint_completion_target:
+    description: "Checkpoint Completion Target"
+    default: "0.7"
+  postgresql.wal_buffers:
+    description: "WAL Buffers"
+    default: "16MB"
+  postgresql.default_statistics_target:
+    description: "Default Statistics Target"
+    default: "100"
+  postgresql.log_error_verbosity:
+    description: "Log Error Verbosity"
+    default: "verbose"
+  postgresql.log_line_prefix:
+    description: "Log Line Prefix"
+    default: "d=%d p=%p a=%a%q "
+  postgresql.log_min_messages:
+    description: "Log Min Messages"
+    default: "debug1"
+  postgresql.log_min_error_statement:
+    description: "Log Min Error Statement"
+    default: "warning"
+  postgresql.log_min_duration_statement:
+    description: "Log Min Duration Statement"
+    default: "2000"
+  postgresql.default_apply_delay:
+    description: "Default Apply Delay"
+    default: "0"
+  postgresql.max_worker_processes:
+    description: "Maximum Number of Worker Processes"
+    default: 400
+  postgresql.max_connections:
+    description: "Maximum Number of Connections"
+    default: 250
+  postgresql.max_wal_senders:
+    description: "Maximum Number of WAL Senders (Must be less than max_connections)"
+    default: 200
+  postgresql.max_replication_slots:
+    description: "Maximum Number of Replication Slots (should equal max_wal_senders)"
+    default: 200
